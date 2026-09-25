@@ -3,7 +3,7 @@
 export const SYNC_PROTOCOL = 1;
 // Both sides must run the same migration revision. A mismatch pauses sync without
 // consuming retry attempts, so nothing fails while the hub and cloud are upgraded.
-export const DATABASE_REVISION = 5;
+export const DATABASE_REVISION = 6;
 export const BATCH_SIZE = 100;
 export const MAX_ATTEMPTS = 10;
 export const SYNC_INTERVAL_MS = 30_000;

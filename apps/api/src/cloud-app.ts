@@ -14,6 +14,7 @@ import {
   pullTables,
 } from "../../../packages/core/src/sync-contract.js";
 import { applyEvent, tenantTx, type Conn } from "./sync-apply.js";
+import { remoteRouter } from "./remote-api.js";
 // Cloud side of replication. Hubs never receive cloud database credentials: each request
 // proves possession of that hotel's licence key for its bound installation, and every
 // query runs under that hotel's RLS context as the non-owner sync_agent role.
@@ -73,7 +74,11 @@ function checkVersion(body: { protocol: number; databaseRevision: number }) {
       `Version mismatch. Cloud runs protocol ${SYNC_PROTOCOL}, database revision ${DATABASE_REVISION}.`,
     );
 }
-export function createCloudApp(connect: Connect) {
+// reports: a report_reader connection. Without it the remote dashboard is not served.
+export function createCloudApp(
+  connect: Connect,
+  options: { reports?: Connect; dashboardDir?: string } = {},
+) {
   const app = express();
   app.disable("x-powered-by");
   app.use(helmet());
@@ -214,7 +219,21 @@ export function createCloudApp(connect: Connect) {
       res.status(204).end();
     }),
   );
+  if (options.reports) app.use("/api/remote", remoteRouter(options.reports));
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found." }));
+  if (options.reports && options.dashboardDir) {
+    const dir = options.dashboardDir;
+    // The staff app's offline service worker belongs on the hub only. Without it the
+    // dashboard always shows the live cloud copy.
+    app.get(["/sw.js", "/registerSW.js", /^\/workbox-.*\.js$/, "/index.html"], (_req, res) =>
+      res.status(404).end(),
+    );
+    app.get("/", (_req, res) => res.redirect(302, "/dashboard"));
+    app.get("/dashboard", (_req, res) =>
+      res.sendFile("dashboard.html", { root: dir }),
+    );
+    app.use(express.static(dir, { index: false }));
+  }
   app.use(errors);
   return app;
 }

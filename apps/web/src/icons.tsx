@@ -29,6 +29,8 @@ const paths = {
   moon: "M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8",
   sun: "M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4",
   contrast: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 3v18a9 9 0 0 0 0-18",
+  chart: "M3 3v18h18M7 16v1M11 11v6M15 7v10M19 12v5",
+  download: "M12 3v12M7 10l5 5 5-5M4 21h16",
 } as const;
 export type IconName = keyof typeof paths;
 export function Icon({ name }: { name: IconName }) {

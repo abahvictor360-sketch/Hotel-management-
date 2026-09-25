@@ -834,3 +834,103 @@ a {
     width: 100%;
   }
 }
+/* Phase 5 reports */
+.report-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+.report-controls .segmented {
+  flex-wrap: wrap;
+}
+.report-range select,
+.report-range input {
+  width: auto;
+  margin: 0;
+}
+label.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+}
+label.inline input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+.report-meta {
+  font-size: 12px;
+}
+.report-table td.num,
+.report-table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.report-table tfoot td {
+  font-weight: 600;
+  border-top: 2px solid var(--border);
+}
+.grid.even {
+  grid-template-columns: 1fr 1fr;
+}
+.bars {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.bars rect {
+  fill: var(--primary);
+  opacity: 0.85;
+}
+.bars rect:hover {
+  opacity: 1;
+}
+.bars .axis {
+  stroke: var(--border);
+}
+.bars text {
+  fill: var(--muted);
+  font-size: 10px;
+}
+.checks {
+  border: 0;
+  padding: 0;
+  margin: 12px 0;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.checks legend {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.secret {
+  display: block;
+  padding: 10px 12px;
+  margin: 8px 0 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.remote {
+  min-height: 100vh;
+  background: var(--bg);
+}
+span.sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+@media (max-width: 850px) {
+  .grid.even {
+    grid-template-columns: 1fr;
+  }
+}

@@ -77,3 +77,7 @@ table contract, retry backoff, failed-event alerts, LWW conflict audit, a cloud-
 booking pull and version negotiation. See docs/PHASE-4.md. It must never replay control-plane licence/subscription changes from
 a hotel hub into provider authority. Passwords/credentials need their own secure
 provisioning path, not the generic replication payload.
+
+Phase 5 reports run the same parameterised SQL on the hub (hotel_app) and in the cloud
+(report_reader, read-only transaction). The cloud dashboard authenticates with hashed
+access links that replicate inside the `remote_access` setting. See docs/PHASE-5.md.

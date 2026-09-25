@@ -13,13 +13,17 @@ export async function scope<T>(
   client: PrismaClient,
   ctx: Context,
   fn: (tx: Tx) => Promise<T>,
+  options: {
+    timeout?: number;
+    isolationLevel?: Prisma.TransactionIsolationLevel;
+  } = {},
 ): Promise<T> {
   return client.$transaction(
     async (tx) => {
       await tx.$executeRaw`SELECT set_config('app.tenant_id',${ctx.tenantId},true),set_config('app.user_id',${ctx.userId ?? ""},true),set_config('app.device_id',${ctx.deviceId ?? "hub"},true),set_config('app.can_write',${ctx.writable ? "true" : "false"},true)`;
       return fn(tx);
     },
-    { maxWait: 5000, timeout: 15000 },
+    { maxWait: 5000, timeout: 15000, ...options },
   );
 }
 // One call = one changed business row. Triggers require these app-generated UUIDs,

@@ -67,3 +67,26 @@ licence key, X-Hotel-Id, X-Installation-Id. Every body carries protocol and data
 | POST | /api/sync/push | hub counts, up to 100 events; returns applied, duplicate, stale or error per event |
 | POST | /api/sync/pull | limit; returns pending cloud-origin events for pull tables |
 | POST | /api/sync/ack | applied ids, failed ids with errors |
+
+## Phase 5 reports and exports
+
+Report kinds: summary, revenue, payments, occupancy, shifts, outstanding, inventory.
+Query: from and to (YYYY-MM-DD, hotel-local, inclusive, at most 366 days), format=json|csv|pdf.
+
+| Method | Path | Access / behaviour |
+|---|---|---|
+| GET | /api/reports/:kind | reports.read; works in read-only mode |
+| GET | /api/exports/tenant | administrator; ZIP of every table plus manifest; audited |
+| GET | /api/remote-access | administrator; links without hashes, plan and dashboard URL |
+| POST | /api/remote-access | administrator; label, days (1 to 365), scopes; returns the link once |
+| DELETE | /api/remote-access/:id | administrator; revokes; reaches the cloud on next sync |
+
+Cloud management dashboard (cloud sync API process, needs CLOUD_REPORT_DATABASE_URL).
+Header: Authorization Bearer access link code. Runs as report_reader in a read-only transaction.
+
+| Method | Path | Behaviour |
+|---|---|---|
+| GET | /dashboard | Dashboard page |
+| GET | /api/remote/session | Hotel, link label, scopes, expiry, plan state, last sync time |
+| GET | /api/remote/reports/:kind | reports scope, Premium plan, live subscription |
+| GET | /api/remote/export | export scope; any subscription status |

@@ -6,8 +6,19 @@ import { Drafts } from "./Drafts";
 import { ServiceDesk } from "./ServiceDesk";
 import { FrontDesk } from "./FrontDesk";
 import { SyncPage, syncLabel, type SyncStatus } from "./Sync";
+import { ReportsView, type ReportSource } from "./Reports";
+import { DataExport } from "./DataExport";
+import { download } from "./api";
 import { Icon, type IconName } from "./icons";
 type Theme = "light" | "dark" | "system";
+const reportPath = (kind: string, from: string, to: string) =>
+  `/reports/${kind}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+// Reports read the hub's own database, so they work during an internet outage.
+const hubReports: ReportSource = {
+  load: (kind, from, to) => api(reportPath(kind, from, to)),
+  download: (kind, from, to, format) =>
+    download(`${reportPath(kind, from, to)}&format=${format}`),
+};
 function applyTheme(theme: Theme) {
   if (theme === "system") delete document.documentElement.dataset.theme;
   else document.documentElement.dataset.theme = theme;
@@ -313,6 +324,7 @@ function App() {
     ["Billing", "billing.read", "wallet", "Finance"],
     ["Receipts", "billing.read", "receipt", "Finance"],
     ["Inventory", "inventory.read", "box", "Finance"],
+    ["Reports", "reports.read", "chart", "Finance"],
     ["Menu setup", "settings.write", "list", "Setup"],
     ["Printer", "settings.write", "printer", "Setup"],
     ["Staff", "staff.read", "users", "Admin"],
@@ -321,11 +333,13 @@ function App() {
     ["Settings", "settings.read", "settings", "Admin"],
     ["Cloud sync", "sync.manage", "cloud", "Admin"],
     ["Audit trail", "audit.read", "history", "Admin"],
+    ["Data export", "admin", "download", "Admin"],
   ];
   const tabs = allTabs.filter(
     ([, p]) =>
       !p ||
       can(p) ||
+      (p === "admin" && who.roleName === "admin" && can("settings.write")) ||
       (p === "drafts" &&
         who.permissions.some(
           (x) =>
@@ -344,6 +358,8 @@ function App() {
     "Front desk": "Arrivals, departures, rooms and guests.",
     "Cloud sync": "What has reached the cloud, and what is still waiting.",
     "Audit trail": "Every change, who made it and from which device.",
+    Reports: "Revenue, payments, occupancy and balances, from this hub.",
+    "Data export": "Take all hotel records away, and share reports with owners.",
   };
   return (
     <div className="shell">
@@ -385,7 +401,7 @@ function App() {
         </nav>
         <footer>
           <strong>Runs on your hotel network</strong>
-          <span>Works without internet. Hub version 0.4.0.</span>
+          <span>Works without internet. Hub version 0.5.0.</span>
         </footer>
       </aside>
       <div className="main">
@@ -630,6 +646,8 @@ function App() {
               canSeeBookings={can("frontdesk.read")}
             />
           ) : null}
+          {tab === "Reports" ? <ReportsView source={hubReports} /> : null}
+          {tab === "Data export" ? <DataExport writable={writable} /> : null}
           {tab === "Front desk" ? (
             <FrontDesk writable={writable} permissions={who.permissions} />
           ) : null}

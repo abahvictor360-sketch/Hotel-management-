@@ -17,8 +17,10 @@ import { operations } from "./operations.js";
 import { printerSchema } from "./printer.js";
 import { drafts } from "./drafts.js";
 import { sync } from "./sync.js";
+import { reporting } from "./reporting.js";
+import { REMOTE_SETTING } from "./remote-access.js";
 import { DATABASE_REVISION } from "../../../packages/core/src/sync-contract.js";
-export const HUB_VERSION = "0.4.0";
+export const HUB_VERSION = "0.5.0";
 export const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
@@ -74,6 +76,7 @@ app.use("/api", printing);
 app.use("/api", operations);
 app.use("/api", drafts);
 app.use("/api", sync);
+app.use("/api", reporting);
 app.get(
   "/api/license",
   route(async (req, res) => {
@@ -334,7 +337,11 @@ app.get(
     requirePermission(who, "settings.read");
     res.json(
       await scope(db, who, (tx) =>
-        tx.settings.findMany({ where: { deleted_at: null }, take: 100 }),
+        // Remote access hashes are managed on their own endpoint and never listed here.
+        tx.settings.findMany({
+          where: { deleted_at: null, key: { not: REMOTE_SETTING } },
+          take: 100,
+        }),
       ),
     );
   }),

@@ -23,11 +23,17 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallbackDenylist: [/^\/api/],
+        // The remote dashboard is a separate page served by the cloud, never the staff shell.
+        navigateFallbackDenylist: [/^\/api/, /^\/dashboard/],
         globPatterns: ["**/*.{js,css,html,svg}"],
         runtimeCaching: [],
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      input: { main: "index.html", dashboard: "dashboard.html" },
+    },
+  },
   server: { port: 5173, proxy: { "/api": "http://localhost:4000" } },
 });

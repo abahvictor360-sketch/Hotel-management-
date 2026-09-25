@@ -45,19 +45,19 @@ export const poolConnect = (pool: pg.Pool) => async () => {
   return { conn: client as Conn, release: () => client.release() };
 };
 // Same guarantees as assertRuntimeRole: never the owner, a superuser or BYPASSRLS.
-export async function assertSyncRole(pool: pg.Pool) {
+export async function assertSyncRole(pool: pg.Pool, expected = "sync_agent") {
   const role = (
     await pool.query(
       "SELECT rolname,rolsuper,rolbypassrls,(SELECT count(*)::int FROM pg_tables WHERE schemaname='public' AND tableowner=current_user) AS owned FROM pg_roles WHERE rolname=current_user",
     )
   ).rows[0];
   if (
-    role?.rolname !== "sync_agent" ||
+    role?.rolname !== expected ||
     role.rolsuper ||
     role.rolbypassrls ||
     role.owned !== 0
   )
-    throw new Error("Unsafe database role: expected non-owner sync_agent");
+    throw new Error(`Unsafe database role: expected non-owner ${expected}`);
 }
 // Runs fn in one transaction with the hotel's tenant context. SET CONSTRAINTS ALL IMMEDIATE
 // makes deferred foreign keys fail inside the row's savepoint instead of failing the commit.

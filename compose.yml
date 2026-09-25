@@ -63,6 +63,7 @@ services:
     ports: ["127.0.0.1:4002:4002"]
     environment:
       CLOUD_SYNC_DATABASE_URL: postgresql://sync_agent:${SYNC_DB_PASSWORD}@cloud-db:5432/cloud?schema=public
+      CLOUD_REPORT_DATABASE_URL: postgresql://report_reader:${REPORT_DB_PASSWORD}@cloud-db:5432/cloud?schema=public
     depends_on:
       setup: { condition: service_completed_successfully }
   hub:
@@ -72,6 +73,7 @@ services:
       DATABASE_URL: postgresql://hotel_app:${HOTEL_DB_PASSWORD}@db:5432/hotel?schema=public
       SYNC_DATABASE_URL: postgresql://sync_agent:${SYNC_DB_PASSWORD}@db:5432/hotel?schema=public
       CLOUD_SYNC_URL: http://cloud:4002
+      CLOUD_DASHBOARD_URL: http://localhost:4002/dashboard
       LICENSE_DATABASE_URL: postgresql://license_agent:${LICENSE_DB_PASSWORD}@db:5432/hotel?schema=public
       PROVIDER_URL: http://provider:4001
       APP_ORIGIN: ${HUB_ORIGIN:-http://localhost:4000}

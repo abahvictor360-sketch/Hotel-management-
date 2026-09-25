@@ -1,6 +1,6 @@
 # Hotel Hub
 
-Offline-first, multi-tenant hotel management. Phase 4 review release (0.4.0).
+Offline-first, multi-tenant hotel management. Phase 5 review release (0.5.0).
 
 This repository is a working foundation, not a finished hotel management product.
 Phase 1 contains the complete business schema, security migrations, seed data,
@@ -8,7 +8,9 @@ staff authentication, roles, tenant boundaries, signed licensing, a staff PWA
 shell, and a separate provider console. Phase 2 adds the front desk calendar, reservations, walk-in check-in, guests,
 room setup, room status and folio viewing. Phase 3 adds service desks, billing,
 payments and receipt printing. Phase 4 adds the hub-to-cloud sync engine, the cloud
-sync API, the sync status indicator and admin page. See `docs/PHASE-4.md`.
+sync API, the sync status indicator and admin page. See `docs/PHASE-4.md`. Phase 5
+adds reports with CSV and PDF downloads, a read-only management dashboard served from
+the cloud copy, and tenant departure exports. See `docs/PHASE-5.md`.
 
 ## Quick start: no Supabase account needed
 
@@ -25,6 +27,8 @@ docker compose up --build
 
 Open http://localhost:4000 for staff and http://localhost:4001 for the provider.
 The cloud sync API runs on http://localhost:4002 and the hub syncs to it every 30 seconds.
+The management dashboard is at http://localhost:4002/dashboard. Create an access link on
+the hub's Data export page (reports links need the Premium plan).
 Generated passwords are in `secrets/demo-logins.txt`. The administrator must
 change their password before accessing the hotel. Initial licence validation
 runs when the hub starts. If the provider was still starting, use the Activate
