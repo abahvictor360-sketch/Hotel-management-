@@ -1,3 +1,4 @@
+raise SystemExit("Archived Phase 1 authoring helper. Edit schema.prisma and add a new migration instead.")
 from pathlib import Path
 import json
 root=Path(__file__).resolve().parents[1]; meta=json.loads((root/'scripts/schema-meta.json').read_text()); tables=meta['tables']

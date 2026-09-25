@@ -20,15 +20,31 @@ export function errors(
   _next: NextFunction,
 ) {
   if (error instanceof ZodError)
-    return res
-      .status(400)
-      .json({
-        error: "Invalid input",
-        fields: error.issues.map((x) => ({ path: x.path, message: x.message })),
-      });
+    return res.status(400).json({
+      error: "Invalid input",
+      fields: error.issues.map((x) => ({ path: x.path, message: x.message })),
+    });
   if (error instanceof HttpError)
     return res.status(error.status).json({ error: error.message });
   const code = (error as { code?: string })?.code;
+  const meta = (error as { meta?: Record<string, unknown> })?.meta;
+  if (
+    code === "P2004" ||
+    (code === "P2010" && ["23P01", "23514"].includes(String(meta?.code)))
+  )
+    return res
+      .status(409)
+      .json({
+        error:
+          "The change conflicts with a booking or folio rule. Refresh and check the current record.",
+      });
+  if (code === "P2034")
+    return res
+      .status(409)
+      .json({
+        error:
+          "Another workstation changed this record. Retry using the same request ID.",
+      });
   if (code === "P2002")
     return res.status(409).json({ error: "This record already exists." });
   if (code === "P2003")

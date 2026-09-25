@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { createRoot } from "react-dom/client";
 import { api, restoreSession, setToken } from "./api";
 import "./styles.css";
+import { FrontDesk } from "./FrontDesk";
 type Identity = {
   userId: string;
   permissions: string[];
@@ -270,6 +271,7 @@ function App() {
     );
   const tabs = [
     ["Overview", ""],
+    ["Front desk", "frontdesk.read"],
     ["Staff", "staff.read"],
     ["Roles", "roles.read"],
     ["Devices", "devices.read"],
@@ -300,9 +302,9 @@ function App() {
           ))}
         </nav>
         <footer>
-          Phase 1 · Foundation
+          Phase 2 · Front desk
           <br />
-          Hub version 0.1.0
+          Hub version 0.2.0
         </footer>
       </aside>
       <div>
@@ -344,7 +346,7 @@ function App() {
                   : "Manage access and hotel configuration."}
               </p>
             </div>
-            <span className="badge">Phase 1</span>
+            <span className="badge">Phase 2</span>
           </div>
           {!reachable ? (
             <div className="notice" role="alert">
@@ -382,7 +384,7 @@ function App() {
                   [
                     "Configured rooms",
                     data?.rooms ?? "—",
-                    "Rooms available for the next phase",
+                    "Configured hotel inventory",
                   ],
                   [
                     "Staff accounts",
@@ -441,14 +443,14 @@ function App() {
                 </section>
                 <section className="panel">
                   <div className="eyebrow">Build progress</div>
-                  <h2>Foundation ready for review</h2>
+                  <h2>Front desk ready for review</h2>
                   <p>
                     Tenant isolation, staff access, roles, signed licences and
                     the complete data model.
                   </p>
                   <p>
-                    Front desk transactions start in Phase 2. Cloud mirroring
-                    starts in Phase 4.
+                    Payment collection starts in Phase 3. Cloud mirroring starts
+                    in Phase 4.
                   </p>
                   <span className="badge warn">
                     {data?.failed ?? 0} failed outbox records
@@ -456,6 +458,9 @@ function App() {
                 </section>
               </div>
             </>
+          ) : null}
+          {tab === "Front desk" ? (
+            <FrontDesk writable={writable} permissions={who.permissions} />
           ) : null}
           {tab === "Staff" ? (
             <div className="grid">

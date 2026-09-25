@@ -1,11 +1,12 @@
 # Hotel Hub
 
-Offline-first, multi-tenant hotel management. Phase 1 review release (0.1.0).
+Offline-first, multi-tenant hotel management. Phase 2 review release (0.2.0).
 
 This repository is a working foundation, not a finished hotel management product.
 Phase 1 contains the complete business schema, security migrations, seed data,
 staff authentication, roles, tenant boundaries, signed licensing, a staff PWA
-shell, and a separate provider console. The six-phase delivery pauses here for review.
+shell, and a separate provider console. Phase 2 adds the front desk calendar, reservations, walk-in check-in, guests,
+room setup, room status and folio viewing. Delivery pauses here for review.
 
 ## Quick start: no Supabase account needed
 
@@ -30,7 +31,7 @@ The database setup service runs migrations and an idempotent demo seed.
 It creates 12 rooms, three room types, eight roles, eight service categories,
 sample menu items, and one administrator. No shared default password is shipped.
 VAT defaults to 7.5% and service charge to 10%, each independently configurable
-per service category in the schema. Actual charge calculation belongs to Phase 3.
+per service category in the schema. Room charges are calculated in Phase 2. Service sales and payments belong to Phase 3.
 
 For LAN testing, set `HUB_ORIGIN=http://YOUR-HUB-IP:4000` in `.env`, recreate the
 hub container, and open that address from your devices. Do not expose port 5432.
@@ -86,7 +87,7 @@ See `.github/workflows/ci.yml` for the full disposable-database procedure.
 | `apps/api/src` | Express hub and separate provider API processes |
 | `apps/web` | Staff React/Vite/Tailwind PWA shell |
 | `apps/provider` | Provider-only React console |
-| `packages/db/prisma` | Full PostgreSQL schema and both shared migrations |
+| `packages/db/prisma` | Full PostgreSQL schema and shared versioned migrations |
 | `packages/core/src` | Licences, encryption, permission catalogue and plan defaults |
 | `scripts` | Provisioning, demo configuration, seed, backup and bootstrap |
 | `tests` | Unit, database-boundary and HTTP checks |
@@ -162,7 +163,7 @@ a database advisory lock. Room-limit enforcement is part of Phase 2 room creatio
 ## New hotel onboarding (Phase 1)
 
 1. Sign in to the provider console and create a hotel. Save its ID and one-time key.
-2. Prepare a fresh PostgreSQL 16 hub database and run both migrations as the owner.
+2. Prepare a fresh PostgreSQL 16 hub database and run all migrations as the owner.
 3. Create non-owner `hotel_app` and `license_agent` login passwords. Keep migration
    credentials out of the running hub environment.
 4. Configure `.env` with HOTEL_ID, a new stable INSTALLATION_ID, public licence key,
@@ -216,8 +217,8 @@ encrypted backup copy on another physical device. See `docs/OPERATIONS.md`.
 ## Production release gates
 
 Do not use this phase for live hotel transactions. Required later gates include
-concurrent room allocation, settlement/reversal tests, printer hardware tests,
+settlement/reversal tests, printer hardware tests,
 Windows service reboot/upgrade/rollback tests, LAN latency measurement, offline
 multi-device tests, Supabase deployment and end-to-end sync fault injection.
 Node.js 20 is end-of-life as of this release date; Node.js 24 LTS is recommended.
-See `docs/PHASE-1.md` for the precise completed/pending boundary.
+See `docs/PHASE-2.md` for the completed/pending boundary and runnable acceptance checks.

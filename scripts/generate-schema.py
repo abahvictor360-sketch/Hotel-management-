@@ -1,3 +1,4 @@
+raise SystemExit("Archived Phase 1 authoring helper. Edit schema.prisma and add a new migration instead.")
 """Authoring helper. Prisma schema and SQL migration are committed outputs."""
 from pathlib import Path
 import json

@@ -337,3 +337,40 @@ a {
     padding: 25px;
   }
 }
+.frontdesk > nav {
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.frontdesk .panel {
+  margin: 1rem 0;
+}
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+.calendar-stay {
+  font-size: 0.75rem;
+  min-width: 100px;
+  padding: 0.45rem;
+}
+.frontdesk details {
+  margin: 1rem 0;
+}
+.frontdesk summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.frontdesk textarea {
+  width: 100%;
+  min-height: 90px;
+  border: 1px solid #cbd5d1;
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+.frontdesk label {
+  display: block;
+}
+.frontdesk .row {
+  flex-wrap: wrap;
+}

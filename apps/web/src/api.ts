@@ -40,7 +40,7 @@ export async function api<T = any>(
     });
   } catch {
     throw new Error(
-      "Hub unreachable. Reconnect to hotel Wi-Fi and retry. No changes were confirmed.",
+      "Hub response unavailable. The action may have completed. Reconnect to hotel Wi-Fi and retry the same action to check its saved result.",
     );
   }
   if (

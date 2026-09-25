@@ -1,4 +1,4 @@
-name: Phase 1 checks
+name: Hotel Hub checks
 on: [push, pull_request]
 permissions:
   contents: read
@@ -36,4 +36,5 @@ jobs:
           npm run seed
           npm run seed
           node --import tsx --test tests/api.integration.ts
+          node --import tsx --test tests/frontdesk.integration.ts
       - run: npm audit --omit=dev --audit-level=high

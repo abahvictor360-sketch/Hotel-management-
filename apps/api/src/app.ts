@@ -10,6 +10,7 @@ import { getLicense, refreshLicense } from "./licensing.js";
 import { route, errors, HttpError } from "./http.js";
 import { permissions } from "../../../packages/core/src/permissions.js";
 import { encryptSecret } from "../../../packages/core/src/crypto.js";
+import { frontdesk } from "./frontdesk.js";
 export const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
@@ -29,7 +30,12 @@ app.get(
   "/api/health",
   route(async (_req, res) => {
     await db.$queryRaw`SELECT 1`;
-    res.json({ status: "ok", version: "0.1.0", schemaVersion: 1 });
+    res.json({
+      status: "ok",
+      version: "0.2.0",
+      schemaVersion: 1,
+      databaseRevision: 3,
+    });
   }),
 );
 app.get(
@@ -54,6 +60,7 @@ app.get(
   }),
 );
 app.use("/api/auth", auth);
+app.use("/api", frontdesk);
 app.get(
   "/api/license",
   route(async (req, res) => {
