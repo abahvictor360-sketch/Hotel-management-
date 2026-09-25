@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 // Shared by the staff app (hub copy, works offline) and the remote management dashboard
 // (cloud copy). Each passes its own loader, so the screens and files are identical.
 export type Column = { key: string; label: string; align?: "left" | "right" };
@@ -77,10 +77,22 @@ function Bars({
   max: number;
   format: string;
 }) {
+  const hatch = useId().replace(/:/g, "");
   const w = 640,
     h = 150,
-    gap = 2,
-    bw = Math.max(2, (w - gap * points.length) / Math.max(points.length, 1));
+    top = 22,
+    gap = points.length > 20 ? 3 : 8,
+    bw = Math.max(3, (w - gap * points.length) / Math.max(points.length, 1)),
+    peak = points.reduce(
+      (best, p, i) => (p.value > points[best].value ? i : best),
+      0,
+    );
+  // The peak carries its value in a pill; the unit is already in the panel header.
+  const pad = 16,
+    peakText = (points[peak]?.text ?? "").replace(/^[A-Z]{3} /, ""),
+    labelW = peakText.length * 6.2 + 16,
+    labelX = (x: number) =>
+      Math.min(Math.max(x + bw / 2 - labelW / 2, -pad), w + pad - labelW);
   return (
     <section className="panel">
       <div className="panel-head">
@@ -89,24 +101,67 @@ function Bars({
       </div>
       <svg
         className="bars"
-        viewBox={`0 0 ${w} ${h + 18}`}
+        viewBox={`${-pad} 0 ${w + 2 * pad} ${h + 18}`}
         role="img"
         aria-label={`${title}: ${points.map((p) => `${p.label} ${p.text}`).join(", ")}`}
       >
+        <defs>
+          <pattern
+            id={hatch}
+            width="6"
+            height="6"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <rect className="hatch-bg" width="6" height="6" />
+            <line
+              className="hatch-line"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="6"
+              strokeWidth="2.5"
+            />
+          </pattern>
+        </defs>
         <line x1="0" x2={w} y1={h} y2={h} className="axis" />
         {points.map((p, i) => {
-          const bh = max > 0 ? Math.max(0, (p.value / max) * (h - 6)) : 0;
+          const bh = max > 0 ? Math.max(0, (p.value / max) * (h - top)) : 0,
+            x = i * (bw + gap),
+            isPeak = i === peak && p.value > 0;
           return (
             <g key={p.label}>
-              <rect x={i * (bw + gap)} y={h - bh} width={bw} height={bh} rx="2">
+              <rect
+                className={isPeak ? "peak" : ""}
+                fill={isPeak ? undefined : `url(#${hatch})`}
+                x={x}
+                y={h - bh}
+                width={bw}
+                height={bh}
+                rx={Math.min(bw / 2, 14)}
+              >
                 <title>{`${p.label}: ${p.text}`}</title>
               </rect>
+              {isPeak ? (
+                <g className="peak-label" aria-hidden="true">
+                  <rect
+                    x={labelX(x)}
+                    y={Math.max(h - bh - 20, 0)}
+                    width={labelW}
+                    height="16"
+                    rx="8"
+                  />
+                  <text
+                    x={labelX(x) + labelW / 2}
+                    y={Math.max(h - bh - 20, 0) + 11.5}
+                    textAnchor="middle"
+                  >
+                    {peakText}
+                  </text>
+                </g>
+              ) : null}
               {points.length <= 16 || i % Math.ceil(points.length / 8) === 0 ? (
-                <text
-                  x={i * (bw + gap) + bw / 2}
-                  y={h + 13}
-                  textAnchor="middle"
-                >
+                <text x={x + bw / 2} y={h + 13} textAnchor="middle">
                   {p.label.slice(5)}
                 </text>
               ) : null}
@@ -115,6 +170,23 @@ function Bars({
         })}
       </svg>
     </section>
+  );
+}
+// Big figures show their decimals lighter, as in "NGN 32,678.90".
+export function Figure({ value }: { value: string }) {
+  const m = /^([A-Z]{3} )?(.*?\d)(\.\d+)?(%?)$/.exec(value);
+  if (!m) return <>{value}</>;
+  return (
+    <>
+      {m[1] ? <span className="unit">{m[1].trim()}</span> : null}
+      {m[2]}
+      {m[3] || m[4] ? (
+        <span className="decimals">
+          {m[3]}
+          {m[4]}
+        </span>
+      ) : null}
+    </>
   );
 }
 export function ReportsView({
@@ -236,9 +308,9 @@ export function ReportsView({
                   <header>{m.label}</header>
                   <div>
                     <strong
-                      className={m.value.length > 14 ? "small-value" : ""}
+                      className={m.value.length > 16 ? "small-value" : ""}
                     >
-                      {m.value}
+                      <Figure value={m.value} />
                     </strong>
                     {m.hint ? <small>{m.hint}</small> : null}
                   </div>

@@ -9,8 +9,8 @@ export default defineConfig({
       manifest: {
         name: "Hotel Hub",
         short_name: "Hotel Hub",
-        theme_color: "#18181b",
-        background_color: "#ffffff",
+        theme_color: "#1b8a4f",
+        background_color: "#eceeec",
         display: "standalone",
         start_url: "/",
         icons: [

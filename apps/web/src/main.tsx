@@ -67,6 +67,10 @@ type Dashboard = {
   failed: number;
   license: License;
 };
+const greeting = () => {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+};
 const formValues = (event: FormEvent<HTMLFormElement>) => {
   event.preventDefault();
   return Object.fromEntries(
@@ -458,7 +462,14 @@ function App() {
         <main className="content">
           <div className="intro">
             <div>
-              <h1>{tab}</h1>
+              {tab === "Overview" ? (
+                <h1>
+                  {greeting()},{" "}
+                  <span className="soft">{who.roleName}</span>
+                </h1>
+              ) : (
+                <h1>{tab}</h1>
+              )}
               <p>
                 {subtitle[tab] ?? "Manage hotel operations and configuration."}
               </p>

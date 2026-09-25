@@ -3,29 +3,29 @@
 @tailwind utilities;
 /* Neutral dashboard theme (shadcn-style). System fonts only: the app must load offline. */
 :root {
-  --bg: #ffffff;
-  --sidebar: #fafafa;
+  --bg: #eceeec;
+  --sidebar: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --border: #e4e4e7;
-  --text: #09090b;
-  --muted: #71717a;
-  --primary: #18181b;
-  --primary-text: #fafafa;
-  --ring: #a1a1aa;
-  --tint-blue: #e0f2fe;
-  --tint-green: #dcfce7;
-  --tint-pink: #fce7f3;
-  --tint-yellow: #fef9c3;
-  --ok-bg: #dcfce7;
-  --ok: #166534;
-  --info-bg: #e0f2fe;
-  --info: #075985;
-  --warn-bg: #fef3c7;
-  --warn: #92400e;
-  --error-bg: #fee2e2;
-  --error: #b91c1c;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  --surface-2: #f3f5f3;
+  --border: #e6e9e6;
+  --text: #121614;
+  --muted: #6b726d;
+  --primary: #1b8a4f;
+  --primary-text: #ffffff;
+  --ring: #7cc49b;
+  --tint-blue: #e3f1f9;
+  --tint-green: #dff3e7;
+  --tint-pink: #fbe8ef;
+  --tint-yellow: #fbf3d7;
+  --ok-bg: #dff3e7;
+  --ok: #146c3d;
+  --info-bg: #e3f1f9;
+  --info: #0b5a80;
+  --warn-bg: #fdf0d5;
+  --warn: #8a4b08;
+  --error-bg: #fde4e4;
+  --error: #b42323;
+  --shadow: 0 1px 2px rgb(16 24 20 / 0.04), 0 4px 16px rgb(16 24 20 / 0.04);
   color-scheme: light;
   font-family:
     Inter,
@@ -41,22 +41,22 @@
   -webkit-font-smoothing: antialiased;
 }
 :root[data-theme="dark"] {
-  --bg: #0a0a0a;
-  --sidebar: #0f0f10;
-  --surface: #171717;
-  --surface-2: #232325;
-  --border: #2a2a2d;
-  --text: #fafafa;
-  --muted: #a1a1aa;
-  --primary: #fafafa;
-  --primary-text: #09090b;
-  --ring: #52525b;
-  --tint-blue: #16323f;
-  --tint-green: #16301f;
-  --tint-pink: #3d1a28;
-  --tint-yellow: #3a2c10;
-  --ok-bg: #14301d;
-  --ok: #86efac;
+  --bg: #0b0e0c;
+  --sidebar: #141916;
+  --surface: #141916;
+  --surface-2: #1d2420;
+  --border: #262e29;
+  --text: #f2f5f3;
+  --muted: #9aa39d;
+  --primary: #3cc47f;
+  --primary-text: #05250f;
+  --ring: #2f7a52;
+  --tint-blue: #13303e;
+  --tint-green: #143222;
+  --tint-pink: #3a1a27;
+  --tint-yellow: #362b10;
+  --ok-bg: #143222;
+  --ok: #86e0ae;
   --info-bg: #102a3a;
   --info: #7dd3fc;
   --warn-bg: #3a2a0c;
@@ -68,22 +68,22 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0a0a0a;
-    --sidebar: #0f0f10;
-    --surface: #171717;
-    --surface-2: #232325;
-    --border: #2a2a2d;
-    --text: #fafafa;
-    --muted: #a1a1aa;
-    --primary: #fafafa;
-    --primary-text: #09090b;
-    --ring: #52525b;
-    --tint-blue: #16323f;
-    --tint-green: #16301f;
-    --tint-pink: #3d1a28;
-    --tint-yellow: #3a2c10;
-    --ok-bg: #14301d;
-    --ok: #86efac;
+    --bg: #0b0e0c;
+    --sidebar: #141916;
+    --surface: #141916;
+    --surface-2: #1d2420;
+    --border: #262e29;
+    --text: #f2f5f3;
+    --muted: #9aa39d;
+    --primary: #3cc47f;
+    --primary-text: #05250f;
+    --ring: #2f7a52;
+    --tint-blue: #13303e;
+    --tint-green: #143222;
+    --tint-pink: #3a1a27;
+    --tint-yellow: #362b10;
+    --ok-bg: #143222;
+    --ok: #86e0ae;
     --info-bg: #102a3a;
     --info: #7dd3fc;
     --warn-bg: #3a2a0c;
@@ -882,12 +882,8 @@ label.inline input[type="checkbox"] {
   height: auto;
   display: block;
 }
-.bars rect {
-  fill: var(--primary);
-  opacity: 0.85;
-}
 .bars rect:hover {
-  opacity: 1;
+  filter: brightness(0.95);
 }
 .bars .axis {
   stroke: var(--border);
@@ -932,5 +928,340 @@ span.sync-pill {
 @media (max-width: 850px) {
   .grid.even {
     grid-template-columns: 1fr;
+  }
+}
+/* ---------------------------------------------------------------------------
+   Soft dashboard style: grey canvas, floating white cards with large radii,
+   pill navigation and buttons, one solid green "featured" card per row.
+   --------------------------------------------------------------------------- */
+body {
+  background: var(--bg);
+}
+h1 {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+h1 .soft {
+  color: var(--muted);
+  font-weight: 400;
+}
+h2 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+button {
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+button.secondary {
+  background: var(--surface);
+  box-shadow: none;
+}
+input,
+select,
+textarea {
+  border-radius: 12px;
+  padding: 9px 13px;
+  box-shadow: none;
+  background: var(--surface);
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--ring);
+  outline: 3px solid color-mix(in srgb, var(--primary) 18%, transparent);
+  outline-offset: 0;
+}
+/* Shell: sidebar and top bar float on the canvas */
+.shell {
+  grid-template-columns: 252px 1fr;
+  gap: 16px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+.sidebar {
+  background: var(--sidebar);
+  border: 0;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  top: 16px;
+  height: calc(100vh - 32px);
+  padding: 18px 14px;
+}
+.brand-mark {
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-text);
+}
+.nav-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 12px 6px;
+}
+.sidebar nav button {
+  border-radius: 999px;
+  padding: 8px 12px;
+  gap: 10px;
+}
+.sidebar nav button.active {
+  background: var(--primary);
+  color: var(--primary-text);
+  font-weight: 500;
+}
+.sidebar nav button.active .icon {
+  color: var(--primary-text);
+}
+.sidebar nav button.active:hover:not(:disabled) {
+  background: var(--primary);
+  opacity: 0.92;
+}
+.sidebar footer {
+  border: 0;
+  border-radius: 18px;
+  background: var(--surface-2);
+}
+.topbar {
+  height: 60px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 0 10px 0 22px;
+  top: 16px;
+}
+.icon-button {
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: var(--primary);
+  color: var(--primary-text);
+  border: 0;
+}
+.content {
+  padding: 28px 8px 24px;
+}
+.intro {
+  margin-bottom: 22px;
+}
+/* Cards */
+.card,
+.panel {
+  border: 0;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.cards {
+  gap: 16px;
+}
+.stat {
+  border: 0;
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.stat > header,
+.stat.tint-blue > header,
+.stat.tint-green > header,
+.stat.tint-pink > header,
+.stat.tint-yellow > header {
+  background: none;
+  border: 0;
+  padding: 18px 20px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.stat > div {
+  padding: 6px 20px 18px;
+}
+.stat strong {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 4px 0 6px;
+}
+.stat strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat strong .decimals {
+  color: var(--muted);
+  font-weight: 400;
+}
+.stat strong .unit {
+  font-size: 0.5em;
+  font-weight: 600;
+  color: var(--muted);
+  margin-right: 5px;
+  letter-spacing: 0.02em;
+}
+.stat strong.small-value {
+  font-size: 24px;
+}
+.stat small {
+  display: inline-block;
+}
+.stat-icon {
+  border: 0;
+  width: 38px;
+  height: 38px;
+}
+.stat.tint-blue .stat-icon {
+  background: var(--tint-blue);
+}
+.stat.tint-green .stat-icon {
+  background: var(--tint-green);
+}
+.stat.tint-pink .stat-icon {
+  background: var(--tint-pink);
+}
+.stat.tint-yellow .stat-icon {
+  background: var(--tint-yellow);
+}
+/* The first card in a row is the featured one, in solid green. */
+.cards > .stat:first-child {
+  background: var(--primary);
+  color: var(--primary-text);
+}
+.cards > .stat:first-child small,
+.cards > .stat:first-child strong .unit,
+.cards > .stat:first-child strong .decimals {
+  color: color-mix(in srgb, var(--primary-text) 72%, transparent);
+}
+.cards > .stat:first-child .stat-icon {
+  background: color-mix(in srgb, var(--primary-text) 16%, transparent);
+}
+/* Pill tabs: the selected option is a green pill */
+.segmented {
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 4px;
+}
+.segmented button {
+  border-radius: 999px;
+  padding: 5px 14px;
+}
+.segmented button.active {
+  background: var(--primary);
+  color: var(--primary-text);
+  box-shadow: none;
+}
+/* Badges read as status dots */
+.badge {
+  border: 0;
+  background: var(--ok-bg);
+  color: var(--ok);
+  padding: 3px 10px 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+/* Tables: soft header strip, light rows */
+thead th {
+  background: var(--surface-2);
+  border-bottom: 0;
+  padding: 10px 12px;
+}
+thead th:first-child {
+  border-radius: 12px 0 0 12px;
+}
+thead th:last-child {
+  border-radius: 0 12px 12px 0;
+}
+td {
+  border-bottom: 1px solid var(--border);
+}
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+.report-table tfoot td {
+  border-top: 0;
+  background: var(--surface-2);
+}
+.report-table tfoot td:first-child {
+  border-radius: 12px 0 0 12px;
+}
+.report-table tfoot td:last-child {
+  border-radius: 0 12px 12px 0;
+}
+.notice,
+.error-message,
+.success {
+  border-radius: 16px;
+}
+.sync-pill {
+  border: 0;
+  padding: 6px 13px;
+}
+/* Charts: rounded, hatched green columns; the highest one is solid */
+.bars rect {
+  opacity: 1;
+}
+.bars rect.peak {
+  fill: var(--primary);
+}
+.bars .hatch-bg {
+  fill: color-mix(in srgb, var(--primary) 30%, var(--surface));
+}
+.bars .hatch-line {
+  stroke: color-mix(in srgb, var(--primary) 55%, var(--surface));
+}
+.bars .peak-label rect {
+  fill: var(--primary);
+}
+.bars .peak-label text {
+  fill: var(--primary-text);
+  font-size: 10px;
+  font-weight: 600;
+}
+.report-controls {
+  border-radius: 22px;
+}
+.login {
+  border: 0;
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+}
+.remote {
+  padding: 16px;
+  box-sizing: border-box;
+}
+.remote .content {
+  max-width: 1320px;
+}
+@media (max-width: 850px) {
+  .shell {
+    padding: 10px;
+    gap: 10px;
+  }
+  .sidebar {
+    height: auto;
+    border-radius: 20px;
+  }
+  .topbar {
+    border-radius: 20px;
+    height: auto;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+  h1 {
+    font-size: 24px;
   }
 }
