@@ -16,6 +16,9 @@ import { printing } from "./printing.js";
 import { operations } from "./operations.js";
 import { printerSchema } from "./printer.js";
 import { drafts } from "./drafts.js";
+import { sync } from "./sync.js";
+import { DATABASE_REVISION } from "../../../packages/core/src/sync-contract.js";
+export const HUB_VERSION = "0.4.0";
 export const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
@@ -37,9 +40,9 @@ app.get(
     await db.$queryRaw`SELECT 1`;
     res.json({
       status: "ok",
-      version: "0.3.0",
+      version: HUB_VERSION,
       schemaVersion: 1,
-      databaseRevision: 4,
+      databaseRevision: DATABASE_REVISION,
     });
   }),
 );
@@ -70,6 +73,7 @@ app.use("/api", billing);
 app.use("/api", printing);
 app.use("/api", operations);
 app.use("/api", drafts);
+app.use("/api", sync);
 app.get(
   "/api/license",
   route(async (req, res) => {
@@ -114,7 +118,7 @@ app.get(
       pending: await tx.sync_queue.count({ where: { status: "pending" } }),
       failed: await tx.sync_queue.count({ where: { status: "failed" } }),
     }));
-    res.json({ ...data, license: await getLicense(), syncImplemented: false });
+    res.json({ ...data, license: await getLicense(), syncImplemented: true });
   }),
 );
 app.get(
@@ -447,7 +451,7 @@ app.get(
   }),
 );
 app.use("/api", (_req, res) =>
-  res.status(404).json({ error: "Endpoint not available in Phase 1." }),
+  res.status(404).json({ error: "Endpoint not available." }),
 );
 app.use(
   express.static("apps/web/dist", {

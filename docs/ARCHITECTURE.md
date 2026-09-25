@@ -72,9 +72,8 @@ cache locally. Each signed lease has a hard 14-day maximum. A clock high-water
 mark catches ordinary rollback, but local admin tampering cannot be eliminated
 by a pure offline software licence.
 
-No replication worker is shipped in Phase 1. The outbox is complete and transactional.
-Phase 4 will add ordered batches, a whitelist of sync contracts, retry backoff,
-failed-event alerts, LWW conflict audit, cloud-origin booking inbox and version
-negotiation. It must never replay control-plane licence/subscription changes from
+Phase 4 ships the replication worker and cloud sync API: ordered batches, an explicit
+table contract, retry backoff, failed-event alerts, LWW conflict audit, a cloud-origin
+booking pull and version negotiation. See docs/PHASE-4.md. It must never replay control-plane licence/subscription changes from
 a hotel hub into provider authority. Passwords/credentials need their own secure
 provisioning path, not the generic replication payload.

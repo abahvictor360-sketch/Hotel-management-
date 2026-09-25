@@ -16,6 +16,10 @@ export const env = z
     LICENSE_DATABASE_URL: z.string().min(1),
     PROVIDER_URL: z.string().url().default("http://localhost:4001"),
     CREDENTIAL_ENCRYPTION_KEY: z.string().regex(/^[a-f0-9]{64}$/i),
+    // Cloud sync is optional: without both values the hub runs fully offline.
+    SYNC_DATABASE_URL: z.string().min(1).optional(),
+    CLOUD_SYNC_URL: z.string().url().optional(),
+    HUB_LICENSE_KEY: z.string().optional(),
   })
   .parse(process.env);
 export const publicKey = readFileSync(env.LICENSE_PUBLIC_KEY_FILE, "utf8");

@@ -48,3 +48,22 @@ unavailable. Database internals are not returned to users.
 
 List screens currently cap at 100. Cursor pagination/search follows with each
 operational module. Do not use these endpoints as a bulk export mechanism.
+
+## Phase 4 sync
+
+| Method | Path | Access / behaviour |
+|---|---|---|
+| GET | /api/sync/status | Any signed-in user; state, pending, failed, last success, last error |
+| GET | /api/sync/queue | sync.manage; status=pending or failed, paginated, no payloads |
+| POST | /api/sync/retry | sync.manage; ids (1 to 100) or allFailed=true; audited |
+| POST | /api/sync/run | sync.manage; starts a cycle now, returns 202 |
+| GET | /api/online-bookings | frontdesk.read; latest 50 bookings pulled from the cloud |
+
+Cloud sync API (separate process, hub-to-cloud only). Headers: Authorization Bearer
+licence key, X-Hotel-Id, X-Installation-Id. Every body carries protocol and databaseRevision.
+
+| Method | Path | Body |
+|---|---|---|
+| POST | /api/sync/push | hub counts, up to 100 events; returns applied, duplicate, stale or error per event |
+| POST | /api/sync/pull | limit; returns pending cloud-origin events for pull tables |
+| POST | /api/sync/ack | applied ids, failed ids with errors |

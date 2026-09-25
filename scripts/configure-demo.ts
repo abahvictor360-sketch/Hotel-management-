@@ -18,6 +18,7 @@ const random = () => randomBytes(24).toString("hex");
 const dbPassword = random(),
   providerDbPassword = random(),
   licenseDbPassword = random(),
+  syncDbPassword = random(),
   ownerPassword = random();
 const adminPassword = randomBytes(15).toString("base64url"),
   providerPassword = randomBytes(15).toString("base64url");
@@ -35,6 +36,11 @@ const lines = {
   HOTEL_DB_PASSWORD: dbPassword,
   PROVIDER_DB_PASSWORD: providerDbPassword,
   LICENSE_DB_PASSWORD: licenseDbPassword,
+  SYNC_DB_PASSWORD: syncDbPassword,
+  SYNC_DATABASE_URL: `postgresql://sync_agent:${syncDbPassword}@localhost:5432/hotel?schema=public`,
+  CLOUD_SYNC_DATABASE_URL: `postgresql://sync_agent:${syncDbPassword}@localhost:5433/cloud?schema=public`,
+  CLOUD_SYNC_URL: "http://localhost:4002",
+  CLOUD_PORT: "4002",
   DATABASE_URL: `postgresql://hotel_app:${dbPassword}@localhost:5432/hotel?schema=public`,
   MIGRATION_DATABASE_URL: `postgresql://postgres:${ownerPassword}@localhost:5432/hotel?schema=public`,
   CLOUD_DATABASE_URL: `postgresql://postgres:${ownerPassword}@localhost:5433/cloud?schema=public`,

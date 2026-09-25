@@ -736,10 +736,13 @@ model sync_queue {
  sent_at DateTime? @db.Timestamptz(6)
  next_attempt_at DateTime? @db.Timestamptz(6)
  source_updated_at DateTime @db.Timestamptz(6)
+ seq BigInt @default(autoincrement())
  @@unique([tenant_id, id])
+ @@unique([tenant_id, seq], map: "sync_queue_tenant_seq")
  @@index([tenant_id])
  @@index([tenant_id, created_by])
  @@index([tenant_id, status, next_attempt_at, created_at])
+ @@index([tenant_id, status, seq], map: "sync_queue_tenant_status_seq")
 }
 
 model sync_metadata {

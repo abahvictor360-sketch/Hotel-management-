@@ -1,6 +1,6 @@
 {
   "name": "hotel-hub",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -22,6 +22,8 @@
     "test:postgres": "node --import tsx --test --test-concurrency=1 tests/postgres.integration.ts",
     "start": "node --import tsx apps/api/src/server.ts",
     "start:provider": "node --import tsx apps/api/src/provider-server.ts",
+    "start:cloud": "node --import tsx apps/api/src/cloud-server.ts",
+    "dev:cloud": "node --import tsx --watch apps/api/src/cloud-server.ts",
     "setup:demo": "node --import tsx scripts/configure-demo.ts",
     "backup": "node --import tsx scripts/backup.ts",
     "provision:hub": "node --import tsx scripts/provision-hub.ts"

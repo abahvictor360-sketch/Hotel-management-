@@ -1,12 +1,14 @@
 # Hotel Hub
 
-Offline-first, multi-tenant hotel management. Phase 2 review release (0.2.0).
+Offline-first, multi-tenant hotel management. Phase 4 review release (0.4.0).
 
 This repository is a working foundation, not a finished hotel management product.
 Phase 1 contains the complete business schema, security migrations, seed data,
 staff authentication, roles, tenant boundaries, signed licensing, a staff PWA
 shell, and a separate provider console. Phase 2 adds the front desk calendar, reservations, walk-in check-in, guests,
-room setup, room status and folio viewing. Delivery pauses here for review.
+room setup, room status and folio viewing. Phase 3 adds service desks, billing,
+payments and receipt printing. Phase 4 adds the hub-to-cloud sync engine, the cloud
+sync API, the sync status indicator and admin page. See `docs/PHASE-4.md`.
 
 ## Quick start: no Supabase account needed
 
@@ -22,6 +24,7 @@ docker compose up --build
 ```
 
 Open http://localhost:4000 for staff and http://localhost:4001 for the provider.
+The cloud sync API runs on http://localhost:4002 and the hub syncs to it every 30 seconds.
 Generated passwords are in `secrets/demo-logins.txt`. The administrator must
 change their password before accessing the hotel. Initial licence validation
 runs when the hub starts. If the provider was still starting, use the Activate
@@ -49,6 +52,7 @@ npm run dev
 npm run dev:provider
 npm run dev:web
 npm run dev:console
+npm run dev:cloud
 ```
 
 Staff Vite app: http://localhost:5173. Provider Vite app: http://localhost:5174.
@@ -84,7 +88,7 @@ See `.github/workflows/ci.yml` for the full disposable-database procedure.
 
 | Location | Purpose |
 |---|---|
-| `apps/api/src` | Express hub and separate provider API processes |
+| `apps/api/src` | Express hub, provider API and cloud sync API processes |
 | `apps/web` | Staff React/Vite/Tailwind PWA shell |
 | `apps/provider` | Provider-only React console |
 | `packages/db/prisma` | Full PostgreSQL schema and shared versioned migrations |

@@ -5,6 +5,21 @@ import "./styles.css";
 import { Drafts } from "./Drafts";
 import { ServiceDesk } from "./ServiceDesk";
 import { FrontDesk } from "./FrontDesk";
+import { SyncPage, syncLabel, type SyncStatus } from "./Sync";
+import { Icon, type IconName } from "./icons";
+type Theme = "light" | "dark" | "system";
+function applyTheme(theme: Theme) {
+  if (theme === "system") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
+}
+const savedTheme = (() => {
+  try {
+    return (localStorage.getItem("hotel-theme") as Theme) || "system";
+  } catch {
+    return "system" as Theme;
+  }
+})();
+applyTheme(savedTheme);
 type Identity = {
   userId: string;
   permissions: string[];
@@ -60,7 +75,21 @@ function App() {
     [staff, setStaff] = useState<Staff[]>([]),
     [roles, setRoles] = useState<Role[]>([]),
     [devices, setDevices] = useState<Device[]>([]),
-    [audit, setAudit] = useState<any[]>([]);
+    [audit, setAudit] = useState<any[]>([]),
+    [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null),
+    [theme, setTheme] = useState<Theme>(savedTheme);
+  async function refreshSync() {
+    setSyncStatus(await api<SyncStatus>("/sync/status"));
+  }
+  function cycleTheme() {
+    const next: Theme =
+      theme === "system" ? "dark" : theme === "dark" ? "light" : "system";
+    setTheme(next);
+    applyTheme(next);
+    try {
+      localStorage.setItem("hotel-theme", next);
+    } catch {}
+  }
   const can = (permission: string) =>
     who?.permissions.includes(permission) ?? false;
   async function load() {
@@ -90,15 +119,19 @@ function App() {
   useEffect(() => {
     if (!who) return;
     let active = true;
-    const timer = setInterval(() => {
-      void api("/health")
-        .then(() => {
-          if (active) setReachable(true);
+    // Sync status doubles as the hub reachability check.
+    const poll = () =>
+      void api<SyncStatus>("/sync/status")
+        .then((v) => {
+          if (!active) return;
+          setReachable(true);
+          setSyncStatus(v);
         })
         .catch(() => {
           if (active) setReachable(false);
         });
-    }, 10000);
+    poll();
+    const timer = setInterval(poll, 15000);
     return () => {
       active = false;
       clearInterval(timer);
@@ -271,23 +304,25 @@ function App() {
         </form>
       </main>
     );
-  const tabs = [
-    ["Overview", ""],
-    ["Front desk", "frontdesk.read"],
-    ["Services", "services"],
-    ["Drafts", "drafts"],
-    ["Billing", "billing.read"],
-    ["Receipts", "billing.read"],
-    ["Inventory", "inventory.read"],
-    ["Housekeeping", "housekeeping.read"],
-    ["Menu setup", "settings.write"],
-    ["Printer", "settings.write"],
-    ["Staff", "staff.read"],
-    ["Roles", "roles.read"],
-    ["Devices", "devices.read"],
-    ["Settings", "settings.read"],
-    ["Audit trail", "audit.read"],
-  ].filter(
+  const allTabs: [string, string, IconName, string][] = [
+    ["Overview", "", "home", "Operations"],
+    ["Front desk", "frontdesk.read", "bed", "Operations"],
+    ["Services", "services", "utensils", "Operations"],
+    ["Drafts", "drafts", "draft", "Operations"],
+    ["Housekeeping", "housekeeping.read", "sparkle", "Operations"],
+    ["Billing", "billing.read", "wallet", "Finance"],
+    ["Receipts", "billing.read", "receipt", "Finance"],
+    ["Inventory", "inventory.read", "box", "Finance"],
+    ["Menu setup", "settings.write", "list", "Setup"],
+    ["Printer", "settings.write", "printer", "Setup"],
+    ["Staff", "staff.read", "users", "Admin"],
+    ["Roles", "roles.read", "shield", "Admin"],
+    ["Devices", "devices.read", "monitor", "Admin"],
+    ["Settings", "settings.read", "settings", "Admin"],
+    ["Cloud sync", "sync.manage", "cloud", "Admin"],
+    ["Audit trail", "audit.read", "history", "Admin"],
+  ];
+  const tabs = allTabs.filter(
     ([, p]) =>
       !p ||
       can(p) ||
@@ -302,48 +337,93 @@ function App() {
         (can("billing.write") ||
           who.permissions.some((x) => x.startsWith("services.")))),
   );
+  const sync = syncLabel(syncStatus);
+  const groups = [...new Set(tabs.map((t) => t[3]))];
+  const subtitle: Record<string, string> = {
+    Overview: "Today at a glance across the hotel.",
+    "Front desk": "Arrivals, departures, rooms and guests.",
+    "Cloud sync": "What has reached the cloud, and what is still waiting.",
+    "Audit trail": "Every change, who made it and from which device.",
+  };
   return (
     <div className="shell">
       <aside className="sidebar">
         <div className="brand">
-          hotel<em>hub.</em>
+          <span className="brand-mark" aria-hidden="true">
+            <Icon name="building" />
+          </span>
+          <div>
+            <strong>{branding.name}</strong>
+            <small>Hotel Hub</small>
+          </div>
         </div>
-        <small style={{ color: "#aac5b7", marginTop: 6 }}>
-          Your hotel, connected locally
-        </small>
         <nav aria-label="Main navigation">
-          {tabs.map(([name]) => (
-            <button
-              key={name}
-              className={name === tab ? "active" : ""}
-              onClick={() => {
-                setTab(name);
-                setMessage("");
-              }}
-            >
-              {name}
-            </button>
+          {groups.map((g) => (
+            <div className="nav-group" key={g}>
+              <div className="nav-label">{g}</div>
+              {tabs
+                .filter((t) => t[3] === g)
+                .map(([name, , icon]) => (
+                  <button
+                    key={name}
+                    className={name === tab ? "active" : ""}
+                    aria-current={name === tab ? "page" : undefined}
+                    onClick={() => {
+                      setTab(name);
+                      setMessage("");
+                    }}
+                  >
+                    <Icon name={icon} />
+                    <span>{name}</span>
+                    {name === "Cloud sync" && syncStatus?.failed ? (
+                      <em className="nav-count">{syncStatus.failed}</em>
+                    ) : null}
+                  </button>
+                ))}
+            </div>
           ))}
         </nav>
         <footer>
-          Phase 3 · Hotel operations
-          <br />
-          Hub version 0.3.0
+          <strong>Runs on your hotel network</strong>
+          <span>Works without internet. Hub version 0.4.0.</span>
         </footer>
       </aside>
-      <div>
+      <div className="main">
         <header className="topbar">
-          <span>{branding.name}</span>
+          <div className="crumb">
+            <span className="dot" aria-hidden="true" />
+            {branding.name}
+          </div>
           <div className="row">
-            <span
+            <button
               role="status"
-              className={`badge ${!reachable ? "error" : "warn"}`}
+              className={`sync-pill ${!reachable ? "error" : sync.tone}`}
+              title={syncStatus?.lastError ?? undefined}
+              onClick={() => {
+                if (can("sync.manage")) setTab("Cloud sync");
+              }}
             >
-              {!reachable
-                ? "Hub unreachable"
-                : `Cloud sync not enabled · ${data?.pending ?? 0} queued`}
+              <Icon
+                name={!reachable || sync.tone === "warn" ? "cloud-off" : "cloud"}
+              />
+              {!reachable ? "Hub unreachable" : sync.text}
+            </button>
+            <button
+              className="icon-button"
+              onClick={cycleTheme}
+              aria-label={`Theme: ${theme}. Switch theme`}
+              title={`Theme: ${theme}`}
+            >
+              <Icon
+                name={
+                  theme === "dark" ? "moon" : theme === "light" ? "sun" : "contrast"
+                }
+              />
+            </button>
+            <span className="avatar" aria-hidden="true">
+              {who.roleName.slice(0, 2).toUpperCase()}
             </span>
-            <span className="muted">{who.roleName}</span>
+            <span className="muted role-name">{who.roleName}</span>
             <button
               className="secondary"
               onClick={() =>
@@ -362,15 +442,11 @@ function App() {
         <main className="content">
           <div className="intro">
             <div>
-              <div className="eyebrow">Hotel workspace</div>
               <h1>{tab}</h1>
               <p>
-                {tab === "Overview"
-                  ? "Your operational foundation, in one place."
-                  : "Manage access and hotel configuration."}
+                {subtitle[tab] ?? "Manage hotel operations and configuration."}
               </p>
             </div>
-            <span className="badge">Phase 3</span>
           </div>
           {!reachable ? (
             <div className="notice" role="alert">
@@ -403,28 +479,58 @@ function App() {
           ) : null}
           {tab === "Overview" ? (
             <>
-              <div className="cards">
-                {[
+              {can("sync.manage") && syncStatus?.failed ? (
+                <div className="error-message" role="alert">
+                  {syncStatus.failed} record(s) stopped syncing to the cloud.{" "}
+                  <button className="link" onClick={() => setTab("Cloud sync")}>
+                    Review and retry
+                  </button>
+                </div>
+              ) : null}
+              <div className="cards four">
+                {(
                   [
-                    "Configured rooms",
-                    data?.rooms ?? "—",
-                    "Configured hotel inventory",
-                  ],
-                  [
-                    "Staff accounts",
-                    data?.staff ?? "—",
-                    "Access controlled by hotel roles",
-                  ],
-                  [
-                    "Registered devices",
-                    data?.devices ?? "—",
-                    `Plan limit: ${data?.license.claims?.maxDevices ?? "not activated"}`,
-                  ],
-                ].map(([label, value, hint]) => (
-                  <section className="card" key={label}>
-                    <small>{label}</small>
-                    <strong>{value}</strong>
-                    <small>{hint}</small>
+                    [
+                      "Configured rooms",
+                      data?.rooms ?? "—",
+                      `Plan limit: ${data?.license.claims?.maxRooms ?? "not activated"}`,
+                      "blue",
+                      "bed",
+                    ],
+                    [
+                      "Staff accounts",
+                      data?.staff ?? "—",
+                      "Access controlled by roles",
+                      "green",
+                      "users",
+                    ],
+                    [
+                      "Registered devices",
+                      data?.devices ?? "—",
+                      `Plan limit: ${data?.license.claims?.maxDevices ?? "not activated"}`,
+                      "pink",
+                      "monitor",
+                    ],
+                    [
+                      "Waiting to sync",
+                      syncStatus?.pending ?? data?.pending ?? "—",
+                      reachable ? sync.text : "Hub unreachable",
+                      "yellow",
+                      "cloud",
+                    ],
+                  ] as [string, string | number, string, string, IconName][]
+                ).map(([label, value, hint, tint, icon]) => (
+                  <section className={`stat tint-${tint}`} key={label}>
+                    <header>{label}</header>
+                    <div className="stat-body">
+                      <span className="stat-icon" aria-hidden="true">
+                        <Icon name={icon} />
+                      </span>
+                      <div>
+                        <strong>{value}</strong>
+                        <small>{hint}</small>
+                      </div>
+                    </div>
                   </section>
                 ))}
               </div>
@@ -466,19 +572,29 @@ function App() {
                   ) : null}
                 </section>
                 <section className="panel">
-                  <div className="eyebrow">Build progress</div>
-                  <h2>Hotel operations ready for review</h2>
+                  <div className="eyebrow">Cloud copy</div>
+                  <h2>{reachable ? sync.text : "Hub unreachable"}</h2>
                   <p>
-                    Tenant isolation, staff access, roles, signed licences and
-                    the complete data model.
+                    Every change is saved on this hub first. It uploads to the
+                    cloud every 30 seconds when the internet is available, so
+                    management reports stay current and online bookings arrive
+                    here.
                   </p>
-                  <p>
-                    Service sales and billing are available. Cloud mirroring
-                    starts in Phase 4.
-                  </p>
-                  <span className="badge warn">
-                    {data?.failed ?? 0} failed outbox records
-                  </span>
+                  <div className="row">
+                    <span
+                      className={`badge ${syncStatus?.failed ? "error" : ""}`}
+                    >
+                      {syncStatus?.failed ?? 0} failed
+                    </span>
+                    <span className="muted">
+                      Last full sync:{" "}
+                      {syncStatus?.lastSuccessAt
+                        ? new Date(syncStatus.lastSuccessAt).toLocaleString(
+                            "en-NG",
+                          )
+                        : "not yet"}
+                    </span>
+                  </div>
                 </section>
               </div>
             </>
@@ -504,6 +620,14 @@ function App() {
               key={who.userId}
               userId={who.userId}
               permissions={who.permissions}
+            />
+          ) : null}
+          {tab === "Cloud sync" ? (
+            <SyncPage
+              status={syncStatus}
+              refresh={refreshSync}
+              canManage={can("sync.manage")}
+              canSeeBookings={can("frontdesk.read")}
             />
           ) : null}
           {tab === "Front desk" ? (
