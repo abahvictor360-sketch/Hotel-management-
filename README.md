@@ -24,9 +24,21 @@ on Windows or Docker Engine with Compose on Ubuntu 22.04.
 git clone https://github.com/abahvictor360-sketch/Hotel-management-.git
 cd Hotel-management-
 npm ci
-npm run setup:demo
+ADMIN_EMAIL=you@example.com npm run setup:demo
 docker compose up --build
 ```
+
+`ADMIN_EMAIL` is optional (default `admin@demo.hotel`); it becomes the first administrator.
+To add another administrator to a running hub, or give one a new temporary password:
+
+```sh
+npm run create-admin -- --email owner@example.com --name "Owner Name"
+npm run create-admin -- --email owner@example.com --reset
+```
+
+The command prints a temporary password once. The hub requires a new password at the
+first sign-in, and the change is recorded in the audit trail. Staff logins live on the
+hub only; the cloud copy never holds passwords.
 
 Open http://localhost:4000 for staff and http://localhost:4001 for the provider.
 The cloud sync API runs on http://localhost:4002 and the hub syncs to it every 30 seconds.

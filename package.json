@@ -26,7 +26,8 @@
     "dev:cloud": "node --import tsx --watch apps/api/src/cloud-server.ts",
     "setup:demo": "node --import tsx scripts/configure-demo.ts",
     "backup": "node --import tsx scripts/backup.ts",
-    "provision:hub": "node --import tsx scripts/provision-hub.ts"
+    "provision:hub": "node --import tsx scripts/provision-hub.ts",
+    "create-admin": "node --import tsx scripts/create-admin.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",

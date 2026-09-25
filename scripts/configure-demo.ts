@@ -36,6 +36,10 @@ const dbPassword = random(),
   ownerPassword = random();
 const adminPassword = randomBytes(15).toString("base64url"),
   providerPassword = randomBytes(15).toString("base64url");
+// ADMIN_EMAIL=you@example.com npm run setup:demo makes you the first administrator.
+const adminEmail = (process.env.ADMIN_EMAIL ?? "admin@demo.hotel").trim().toLowerCase();
+if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(adminEmail))
+  throw new Error("ADMIN_EMAIL is not a valid email address.");
 const tenant = randomUUID(),
   installation = randomUUID();
 const lines = {
@@ -77,7 +81,7 @@ const lines = {
   LICENSE_PUBLIC_KEY_FILE: "secrets/license-public.pem",
   PROVIDER_URL: "http://localhost:4001",
   HUB_LICENSE_KEY: randomBytes(32).toString("base64url"),
-  SEED_ADMIN_EMAIL: "admin@demo.hotel",
+  SEED_ADMIN_EMAIL: adminEmail,
   SEED_ADMIN_PASSWORD: adminPassword,
   SEED_HOTEL_NAME: "Demo Hotel",
   BACKUP_DIR: "backups",
@@ -92,7 +96,7 @@ writeFileSync(
 );
 writeFileSync(
   "secrets/demo-logins.txt",
-  `Staff: admin@demo.hotel\nTemporary password: ${adminPassword}\nProvider password: ${providerPassword}\n`,
+  `Staff: ${adminEmail}\nTemporary password: ${adminPassword}\nProvider password: ${providerPassword}\n`,
   { mode: 0o600 },
 );
 console.log(
