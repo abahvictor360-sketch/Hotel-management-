@@ -374,3 +374,63 @@ a {
 .frontdesk .row {
   flex-wrap: wrap;
 }
+.service-desk .panel {
+  margin: 1rem 0;
+}
+.service-desk .row {
+  flex-wrap: wrap;
+}
+.service-desk label {
+  display: block;
+}
+.service-desk fieldset {
+  border: 1px solid #d2ded8;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.service-desk input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+.print-document {
+  max-width: 700px;
+  margin: auto;
+}
+.print-document td:last-child {
+  text-align: right;
+}
+.service-desk .card small {
+  display: block;
+  margin: 0.5rem 0;
+}
+.service-desk details {
+  margin: 1rem 0;
+}
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .receipt-panel,
+  .receipt-panel * {
+    visibility: visible;
+  }
+  .receipt-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: 0;
+    box-shadow: none;
+  }
+  .print-controls,
+  .print-controls * {
+    display: none !important;
+  }
+  .print-document {
+    color: #000;
+    background: #fff;
+  }
+  .print-document table {
+    width: 100%;
+  }
+}

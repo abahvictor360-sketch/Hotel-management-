@@ -383,6 +383,7 @@ model service_items {
 }
 
 model service_orders {
+ price_snapshot Json? @db.JsonB
  id String @db.Uuid @id
  tenant_id String @db.Uuid
  created_at DateTime @db.Timestamptz(6) @default(now())
@@ -415,6 +416,7 @@ model service_orders {
 }
 
 model service_order_items {
+ item_name String @db.Text @default("")
  id String @db.Uuid @id
  tenant_id String @db.Uuid
  created_at DateTime @db.Timestamptz(6) @default(now())
@@ -462,6 +464,8 @@ model folio_charges {
 }
 
 model payments {
+ shift_id String? @db.Uuid
+ @@index([tenant_id,shift_id],map:"payments_shift")
  id String @db.Uuid @id
  tenant_id String @db.Uuid
  created_at DateTime @db.Timestamptz(6) @default(now())
@@ -988,4 +992,24 @@ model hub_commands {
  @@unique([tenant_id,request_id])
  @@index([tenant_id], map: "hub_commands_tenant")
  @@index([tenant_id,created_by], map: "hub_commands_creator")
+}
+
+model print_jobs {
+ id String @id @db.Uuid
+ tenant_id String @db.Uuid
+ created_at DateTime @default(now()) @db.Timestamptz(6)
+ updated_at DateTime @default(now()) @db.Timestamptz(6)
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @default("hub") @db.Text
+ created_by String? @db.Uuid
+ receipt_id String? @db.Uuid
+ kind String @db.Text
+ reason String @db.Text
+ status String @default("pending") @db.Text
+ error String? @db.Text
+ sent_at DateTime? @db.Timestamptz(6)
+ @@unique([tenant_id,id])
+ @@index([tenant_id,status,created_at],map:"print_jobs_tenant_status")
+ @@index([tenant_id,created_by],map:"print_jobs_creator")
+ @@index([tenant_id,receipt_id],map:"print_jobs_receipt")
 }

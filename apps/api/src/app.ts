@@ -11,6 +11,11 @@ import { route, errors, HttpError } from "./http.js";
 import { permissions } from "../../../packages/core/src/permissions.js";
 import { encryptSecret } from "../../../packages/core/src/crypto.js";
 import { frontdesk } from "./frontdesk.js";
+import { billing } from "./billing.js";
+import { printing } from "./printing.js";
+import { operations } from "./operations.js";
+import { printerSchema } from "./printer.js";
+import { drafts } from "./drafts.js";
 export const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
@@ -32,9 +37,9 @@ app.get(
     await db.$queryRaw`SELECT 1`;
     res.json({
       status: "ok",
-      version: "0.2.0",
+      version: "0.3.0",
       schemaVersion: 1,
-      databaseRevision: 3,
+      databaseRevision: 4,
     });
   }),
 );
@@ -61,6 +66,10 @@ app.get(
 );
 app.use("/api/auth", auth);
 app.use("/api", frontdesk);
+app.use("/api", billing);
+app.use("/api", printing);
+app.use("/api", operations);
+app.use("/api", drafts);
 app.get(
   "/api/license",
   route(async (req, res) => {
@@ -345,14 +354,7 @@ const settingsSchema = z.discriminatedUnion("key", [
   }),
   z.object({
     key: z.literal("printer"),
-    value: z
-      .object({
-        type: z.enum(["network", "usb", "serial"]),
-        interface: z.string().max(200),
-        width: z.enum(["58", "80"]),
-        characterSet: z.string().max(50),
-      })
-      .strict(),
+    value: printerSchema,
   }),
   z.object({
     key: z.literal("receipt_footer"),

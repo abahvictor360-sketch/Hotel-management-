@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { createRoot } from "react-dom/client";
 import { api, restoreSession, setToken } from "./api";
 import "./styles.css";
+import { Drafts } from "./Drafts";
+import { ServiceDesk } from "./ServiceDesk";
 import { FrontDesk } from "./FrontDesk";
 type Identity = {
   userId: string;
@@ -272,12 +274,34 @@ function App() {
   const tabs = [
     ["Overview", ""],
     ["Front desk", "frontdesk.read"],
+    ["Services", "services"],
+    ["Drafts", "drafts"],
+    ["Billing", "billing.read"],
+    ["Receipts", "billing.read"],
+    ["Inventory", "inventory.read"],
+    ["Housekeeping", "housekeeping.read"],
+    ["Menu setup", "settings.write"],
+    ["Printer", "settings.write"],
     ["Staff", "staff.read"],
     ["Roles", "roles.read"],
     ["Devices", "devices.read"],
     ["Settings", "settings.read"],
     ["Audit trail", "audit.read"],
-  ].filter(([, p]) => !p || can(p));
+  ].filter(
+    ([, p]) =>
+      !p ||
+      can(p) ||
+      (p === "drafts" &&
+        who.permissions.some(
+          (x) =>
+            ["frontdesk.write", "housekeeping.write", "billing.write"].includes(
+              x,
+            ) || x.startsWith("services."),
+        )) ||
+      (p === "services" &&
+        (can("billing.write") ||
+          who.permissions.some((x) => x.startsWith("services.")))),
+  );
   return (
     <div className="shell">
       <aside className="sidebar">
@@ -302,9 +326,9 @@ function App() {
           ))}
         </nav>
         <footer>
-          Phase 2 · Front desk
+          Phase 3 · Hotel operations
           <br />
-          Hub version 0.2.0
+          Hub version 0.3.0
         </footer>
       </aside>
       <div>
@@ -346,7 +370,7 @@ function App() {
                   : "Manage access and hotel configuration."}
               </p>
             </div>
-            <span className="badge">Phase 2</span>
+            <span className="badge">Phase 3</span>
           </div>
           {!reachable ? (
             <div className="notice" role="alert">
@@ -443,14 +467,14 @@ function App() {
                 </section>
                 <section className="panel">
                   <div className="eyebrow">Build progress</div>
-                  <h2>Front desk ready for review</h2>
+                  <h2>Hotel operations ready for review</h2>
                   <p>
                     Tenant isolation, staff access, roles, signed licences and
                     the complete data model.
                   </p>
                   <p>
-                    Payment collection starts in Phase 3. Cloud mirroring starts
-                    in Phase 4.
+                    Service sales and billing are available. Cloud mirroring
+                    starts in Phase 4.
                   </p>
                   <span className="badge warn">
                     {data?.failed ?? 0} failed outbox records
@@ -458,6 +482,29 @@ function App() {
                 </section>
               </div>
             </>
+          ) : null}
+          {[
+            "Services",
+            "Billing",
+            "Receipts",
+            "Inventory",
+            "Housekeeping",
+            "Menu setup",
+            "Printer",
+          ].includes(tab) ? (
+            <ServiceDesk
+              key={tab}
+              view={tab}
+              permissions={who.permissions}
+              writable={writable}
+            />
+          ) : null}
+          {tab === "Drafts" ? (
+            <Drafts
+              key={who.userId}
+              userId={who.userId}
+              permissions={who.permissions}
+            />
           ) : null}
           {tab === "Front desk" ? (
             <FrontDesk writable={writable} permissions={who.permissions} />

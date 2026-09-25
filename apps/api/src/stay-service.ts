@@ -396,7 +396,7 @@ export async function checkOut(tx: Tx, who: Identity, id: string) {
   if (!balance.isZero())
     throw new HttpError(
       409,
-      `Folio must have a zero balance before checkout. Current balance: ${balance.toFixed(2)}. Payment and refund entry arrive in Phase 3.`,
+      `Folio must have a zero balance before checkout. Current balance: ${balance.toFixed(2)}. Collect payment or correct the folio from Billing.`,
     );
   await mutation(tx, () =>
     tx.folios.update({

@@ -703,6 +703,8 @@ export function FrontDesk({
             </button>
           </div>
           <p>
+            Reference: {selected.id}
+            <br />
             {selected.check_in_date} to {selected.check_out_date} ·{" "}
             {selected.status}
           </p>
@@ -919,8 +921,8 @@ export function FrontDesk({
               </div>
               <h3>Balance {cash(folio.balance)}</h3>
               <p>
-                Payment collection and receipts will be available in Phase 3.
-                Check-out requires a zero balance.
+                Open Billing to collect payment or print a receipt. Check-out
+                requires a zero balance.
               </p>
               {can("billing.write") && selected.status === "checked_in" && (
                 <button
