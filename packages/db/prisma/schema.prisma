@@ -1,0 +1,970 @@
+generator client {
+ provider = "prisma-client-js"
+}
+datasource db {
+ provider = "postgresql"
+ url = env("DATABASE_URL")
+}
+
+enum RoomStatus {
+ available
+ occupied
+ reserved
+ dirty
+ maintenance
+}
+
+enum ReservationStatus {
+ pending
+ confirmed
+ checked_in
+ checked_out
+ cancelled
+ no_show
+}
+
+enum BookingSource {
+ walk_in
+ phone
+ online
+}
+
+enum FolioStatus {
+ open
+ closed
+}
+
+enum OrderStatus {
+ pending
+ served
+ cancelled
+}
+
+enum PaymentMethod {
+ cash
+ pos
+ transfer
+ online
+}
+
+enum Gateway {
+ paystack
+ flutterwave
+}
+
+enum SyncOperation {
+ insert
+ update
+}
+
+enum SyncStatus {
+ pending
+ sent
+ failed
+}
+
+enum TaskStatus {
+ pending
+ in_progress
+ completed
+ cancelled
+}
+
+enum OnlineStatus {
+ pending
+ confirmed
+ rejected
+}
+
+enum SubscriptionStatus {
+ trial
+ active
+ past_due
+ suspended
+ cancelled
+}
+
+enum PlanTier {
+ standard
+ premium
+}
+
+model tenants {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ name String @db.Text
+ slug String @db.Text
+ branding Json @db.JsonB
+ timezone String @db.Text @default("Africa/Lagos")
+ currency String @db.Text @default("NGN")
+ currency_symbol String @db.Text @default("₦")
+ schema_version Int  @default(1)
+ @@unique([tenant_id, slug])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model roles {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ name String @db.Text
+ permissions Json @db.JsonB
+ @@unique([tenant_id, name])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ back_users_role_id users[] @relation("users_role_id")
+}
+
+model users {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ name String @db.Text
+ email String @db.Text
+ phone String? @db.Text
+ password_hash String @db.Text
+ role_id String @db.Uuid
+ is_active Boolean  @default(true)
+ force_password_change Boolean  @default(true)
+ token_version Int  @default(0)
+ @@unique([tenant_id, email])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_role_id roles @relation("users_role_id", fields: [tenant_id, role_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, role_id])
+ back_service_orders_ordered_by service_orders[] @relation("service_orders_ordered_by")
+ back_payments_received_by payments[] @relation("payments_received_by")
+ back_receipt_reprints_requested_by receipt_reprints[] @relation("receipt_reprints_requested_by")
+ back_shifts_user_id shifts[] @relation("shifts_user_id")
+ back_housekeeping_tasks_assigned_to housekeeping_tasks[] @relation("housekeeping_tasks_assigned_to")
+ back_inventory_movements_moved_by inventory_movements[] @relation("inventory_movements_moved_by")
+ back_audit_log_user_id audit_log[] @relation("audit_log_user_id")
+ back_refresh_sessions_user_id refresh_sessions[] @relation("refresh_sessions_user_id")
+ back_draft_submissions_submitted_by draft_submissions[] @relation("draft_submissions_submitted_by")
+}
+
+model devices {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ label String @db.Text
+ local_ip String? @db.Text
+ assigned_department String? @db.Text
+ last_seen_at DateTime? @db.Timestamptz(6)
+ revoked_at DateTime? @db.Timestamptz(6)
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model guests {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ full_name String @db.Text
+ phone String? @db.Text
+ email String? @db.Text
+ id_type String? @db.Text
+ id_number String? @db.Text
+ address String? @db.Text
+ nationality String? @db.Text
+ notes String? @db.Text
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ back_reservations_guest_id reservations[] @relation("reservations_guest_id")
+ back_folios_guest_id folios[] @relation("folios_guest_id")
+}
+
+model room_types {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ name String @db.Text
+ base_rate Decimal @db.Decimal(12, 2)
+ capacity Int 
+ description String? @db.Text
+ amenities Json @db.JsonB
+ online_allotment Int  @default(0)
+ @@unique([tenant_id, name])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ back_rooms_room_type_id rooms[] @relation("rooms_room_type_id")
+ back_rate_plans_room_type_id rate_plans[] @relation("rate_plans_room_type_id")
+ back_reservations_room_type_id reservations[] @relation("reservations_room_type_id")
+}
+
+model rooms {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ room_number String @db.Text
+ room_type_id String @db.Uuid
+ floor Int  @default(0)
+ status RoomStatus  @default(available)
+ @@unique([tenant_id, room_number])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_room_type_id room_types @relation("rooms_room_type_id", fields: [tenant_id, room_type_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, room_type_id])
+ back_reservations_room_id reservations[] @relation("reservations_room_id")
+ back_service_orders_room_id service_orders[] @relation("service_orders_room_id")
+ back_housekeeping_tasks_room_id housekeeping_tasks[] @relation("housekeeping_tasks_room_id")
+ @@index([tenant_id, status])
+}
+
+model rate_plans {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ room_type_id String @db.Uuid
+ name String @db.Text
+ rate Decimal @db.Decimal(12, 2)
+ valid_from DateTime @db.Date
+ valid_to DateTime @db.Date
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_room_type_id room_types @relation("rate_plans_room_type_id", fields: [tenant_id, room_type_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, room_type_id])
+}
+
+model reservations {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ guest_id String @db.Uuid
+ room_id String? @db.Uuid
+ room_type_id String @db.Uuid
+ check_in_date DateTime @db.Date
+ check_out_date DateTime @db.Date
+ adults Int  @default(1)
+ children Int  @default(0)
+ rate Decimal @db.Decimal(12, 2)
+ status ReservationStatus  @default(pending)
+ source BookingSource  @default(walk_in)
+ notes String? @db.Text
+ cloud_booking_id String? @db.Uuid
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_guest_id guests @relation("reservations_guest_id", fields: [tenant_id, guest_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, guest_id])
+ rel_room_id rooms? @relation("reservations_room_id", fields: [tenant_id, room_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, room_id])
+ rel_room_type_id room_types @relation("reservations_room_type_id", fields: [tenant_id, room_type_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, room_type_id])
+ rel_cloud_booking_id online_bookings? @relation("reservations_cloud_booking_id", fields: [tenant_id, cloud_booking_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, cloud_booking_id])
+ back_folios_reservation_id folios[] @relation("folios_reservation_id")
+ back_online_bookings_matched_reservation_id online_bookings[] @relation("online_bookings_matched_reservation_id")
+ @@index([tenant_id, check_in_date, status])
+}
+
+model folios {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ reservation_id String? @db.Uuid
+ guest_id String @db.Uuid
+ status FolioStatus  @default(open)
+ opened_at DateTime @db.Timestamptz(6)
+ closed_at DateTime? @db.Timestamptz(6)
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_reservation_id reservations? @relation("folios_reservation_id", fields: [tenant_id, reservation_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, reservation_id])
+ rel_guest_id guests @relation("folios_guest_id", fields: [tenant_id, guest_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, guest_id])
+ back_service_orders_folio_id service_orders[] @relation("service_orders_folio_id")
+ back_folio_charges_folio_id folio_charges[] @relation("folio_charges_folio_id")
+ back_payments_folio_id payments[] @relation("payments_folio_id")
+ back_receipts_folio_id receipts[] @relation("receipts_folio_id")
+ @@index([tenant_id, status])
+}
+
+model service_categories {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ name String @db.Text
+ vat_enabled Boolean  @default(true)
+ service_charge_enabled Boolean  @default(true)
+ vat_rate Decimal @db.Decimal(12, 3) @default("7.500")
+ service_charge_rate Decimal @db.Decimal(12, 3) @default("10.000")
+ @@unique([tenant_id, name])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ back_service_items_category_id service_items[] @relation("service_items_category_id")
+ back_service_orders_category_id service_orders[] @relation("service_orders_category_id")
+}
+
+model service_items {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ category_id String @db.Uuid
+ name String @db.Text
+ price Decimal @db.Decimal(12, 2)
+ unit String @db.Text
+ is_active Boolean  @default(true)
+ track_inventory Boolean  @default(false)
+ inventory_item_id String? @db.Uuid
+ inventory_qty_per_unit Decimal @db.Decimal(12, 3) @default("1.000")
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_category_id service_categories @relation("service_items_category_id", fields: [tenant_id, category_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, category_id])
+ rel_inventory_item_id inventory_items? @relation("service_items_inventory_item_id", fields: [tenant_id, inventory_item_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, inventory_item_id])
+ back_service_order_items_service_item_id service_order_items[] @relation("service_order_items_service_item_id")
+}
+
+model service_orders {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ folio_id String? @db.Uuid
+ category_id String @db.Uuid
+ room_id String? @db.Uuid
+ ordered_by String @db.Uuid
+ status OrderStatus  @default(pending)
+ total Decimal @db.Decimal(12, 2)
+ idempotency_key String @db.Text
+ @@unique([tenant_id, idempotency_key])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_folio_id folios? @relation("service_orders_folio_id", fields: [tenant_id, folio_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, folio_id])
+ rel_category_id service_categories @relation("service_orders_category_id", fields: [tenant_id, category_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, category_id])
+ rel_room_id rooms? @relation("service_orders_room_id", fields: [tenant_id, room_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, room_id])
+ rel_ordered_by users @relation("service_orders_ordered_by", fields: [tenant_id, ordered_by], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, ordered_by])
+ back_service_order_items_order_id service_order_items[] @relation("service_order_items_order_id")
+ back_payments_order_id payments[] @relation("payments_order_id")
+ back_receipts_order_id receipts[] @relation("receipts_order_id")
+}
+
+model service_order_items {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ order_id String @db.Uuid
+ service_item_id String @db.Uuid
+ quantity Decimal @db.Decimal(12, 3)
+ unit_price Decimal @db.Decimal(12, 2)
+ subtotal Decimal @db.Decimal(12, 2)
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_order_id service_orders @relation("service_order_items_order_id", fields: [tenant_id, order_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, order_id])
+ rel_service_item_id service_items @relation("service_order_items_service_item_id", fields: [tenant_id, service_item_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, service_item_id])
+}
+
+model folio_charges {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ folio_id String @db.Uuid
+ source_type String @db.Text
+ source_id String? @db.Uuid
+ description String @db.Text
+ amount Decimal @db.Decimal(12, 2)
+ charged_at DateTime @db.Timestamptz(6)
+ reversal_of_id String? @db.Uuid
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_folio_id folios @relation("folio_charges_folio_id", fields: [tenant_id, folio_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, folio_id])
+ rel_reversal_of_id folio_charges? @relation("folio_charges_reversal_of_id", fields: [tenant_id, reversal_of_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, reversal_of_id])
+ back_folio_charges_reversal_of_id folio_charges[] @relation("folio_charges_reversal_of_id")
+}
+
+model payments {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ folio_id String? @db.Uuid
+ order_id String? @db.Uuid
+ amount Decimal @db.Decimal(12, 2)
+ method PaymentMethod 
+ reference String? @db.Text
+ received_by String @db.Uuid
+ paid_at DateTime @db.Timestamptz(6)
+ gateway_reference String? @db.Text
+ reversal_of_id String? @db.Uuid
+ idempotency_key String @db.Text
+ @@unique([tenant_id, idempotency_key])
+ @@unique([tenant_id, gateway_reference])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_folio_id folios? @relation("payments_folio_id", fields: [tenant_id, folio_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, folio_id])
+ rel_order_id service_orders? @relation("payments_order_id", fields: [tenant_id, order_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, order_id])
+ rel_received_by users @relation("payments_received_by", fields: [tenant_id, received_by], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, received_by])
+ rel_reversal_of_id payments? @relation("payments_reversal_of_id", fields: [tenant_id, reversal_of_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, reversal_of_id])
+ back_payments_reversal_of_id payments[] @relation("payments_reversal_of_id")
+ @@index([tenant_id, paid_at])
+}
+
+model receipts {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ receipt_number String @db.Text
+ folio_id String? @db.Uuid
+ order_id String? @db.Uuid
+ payload Json @db.JsonB
+ printed_at DateTime? @db.Timestamptz(6)
+ reversal_of_id String? @db.Uuid
+ @@unique([tenant_id, device_id, receipt_number])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_folio_id folios? @relation("receipts_folio_id", fields: [tenant_id, folio_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, folio_id])
+ rel_order_id service_orders? @relation("receipts_order_id", fields: [tenant_id, order_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, order_id])
+ rel_reversal_of_id receipts? @relation("receipts_reversal_of_id", fields: [tenant_id, reversal_of_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, reversal_of_id])
+ back_receipts_reversal_of_id receipts[] @relation("receipts_reversal_of_id")
+ back_receipt_reprints_receipt_id receipt_reprints[] @relation("receipt_reprints_receipt_id")
+}
+
+model receipt_reprints {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ receipt_id String @db.Uuid
+ requested_by String @db.Uuid
+ printed_at DateTime @db.Timestamptz(6)
+ reason String @db.Text
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_receipt_id receipts @relation("receipt_reprints_receipt_id", fields: [tenant_id, receipt_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, receipt_id])
+ rel_requested_by users @relation("receipt_reprints_requested_by", fields: [tenant_id, requested_by], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, requested_by])
+}
+
+model receipt_counters {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ counter_device String @db.Text
+ next_number Int  @default(1)
+ @@unique([tenant_id, counter_device])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model shifts {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ user_id String @db.Uuid
+ opened_at DateTime @db.Timestamptz(6)
+ closed_at DateTime? @db.Timestamptz(6)
+ opening_float Decimal @db.Decimal(12, 2)
+ closing_cash Decimal? @db.Decimal(12, 2)
+ variance Decimal? @db.Decimal(12, 2)
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_user_id users @relation("shifts_user_id", fields: [tenant_id, user_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, user_id])
+}
+
+model housekeeping_tasks {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ room_id String @db.Uuid
+ assigned_to String? @db.Uuid
+ type String @db.Text
+ status TaskStatus  @default(pending)
+ notes String? @db.Text
+ completed_at DateTime? @db.Timestamptz(6)
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_room_id rooms @relation("housekeeping_tasks_room_id", fields: [tenant_id, room_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, room_id])
+ rel_assigned_to users? @relation("housekeeping_tasks_assigned_to", fields: [tenant_id, assigned_to], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, assigned_to])
+}
+
+model inventory_items {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ name String @db.Text
+ unit String @db.Text
+ quantity_on_hand Decimal @db.Decimal(12, 3) @default("0.000")
+ reorder_level Decimal @db.Decimal(12, 3) @default("0.000")
+ category String @db.Text
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ back_service_items_inventory_item_id service_items[] @relation("service_items_inventory_item_id")
+ back_inventory_movements_item_id inventory_movements[] @relation("inventory_movements_item_id")
+}
+
+model inventory_movements {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ item_id String @db.Uuid
+ change_qty Decimal @db.Decimal(12, 3)
+ reason String @db.Text
+ reference_id String? @db.Uuid
+ moved_by String @db.Uuid
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_item_id inventory_items @relation("inventory_movements_item_id", fields: [tenant_id, item_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, item_id])
+ rel_moved_by users @relation("inventory_movements_moved_by", fields: [tenant_id, moved_by], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, moved_by])
+}
+
+model online_bookings {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ payload Json @db.JsonB
+ matched_reservation_id String? @db.Uuid
+ processed Boolean  @default(false)
+ status OnlineStatus  @default(pending)
+ external_reference String @db.Text
+ notification_status String @db.Text @default("pending")
+ @@unique([tenant_id, external_reference])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_matched_reservation_id reservations? @relation("online_bookings_matched_reservation_id", fields: [tenant_id, matched_reservation_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, matched_reservation_id])
+ back_reservations_cloud_booking_id reservations[] @relation("reservations_cloud_booking_id")
+ back_notifications_online_booking_id notifications[] @relation("notifications_online_booking_id")
+}
+
+model payment_transactions {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ gateway Gateway 
+ reference String @db.Text
+ amount Decimal @db.Decimal(12, 2)
+ status String @db.Text
+ raw_response Json @db.JsonB
+ verified_at DateTime? @db.Timestamptz(6)
+ @@unique([tenant_id, gateway, reference])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model audit_log {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ user_id String? @db.Uuid
+ action String @db.Text
+ entity String @db.Text
+ entity_id String @db.Uuid
+ before Json? @db.JsonB
+ after Json? @db.JsonB
+ occurred_at DateTime @db.Timestamptz(6)
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_user_id users? @relation("audit_log_user_id", fields: [tenant_id, user_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, user_id])
+ @@index([tenant_id, occurred_at])
+}
+
+model sync_queue {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ table_name String @db.Text
+ record_id String @db.Uuid
+ operation SyncOperation 
+ payload Json @db.JsonB
+ attempts Int  @default(0)
+ last_error String? @db.Text
+ status SyncStatus  @default(pending)
+ sent_at DateTime? @db.Timestamptz(6)
+ next_attempt_at DateTime? @db.Timestamptz(6)
+ source_updated_at DateTime @db.Timestamptz(6)
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ @@index([tenant_id, status, next_attempt_at, created_at])
+}
+
+model sync_metadata {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ table_name String @db.Text
+ record_id String @db.Uuid
+ synced Boolean  @default(false)
+ last_synced_at DateTime? @db.Timestamptz(6)
+ source_updated_at DateTime @db.Timestamptz(6)
+ @@unique([tenant_id, table_name, record_id])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model settings {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ key String @db.Text
+ value Json @db.JsonB
+ @@unique([tenant_id, key])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model refresh_sessions {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ user_id String @db.Uuid
+ token_hash String @db.Text
+ family_id String @db.Uuid
+ expires_at DateTime @db.Timestamptz(6)
+ revoked_at DateTime? @db.Timestamptz(6)
+ replaced_by_id String? @db.Uuid
+ @@unique([tenant_id, token_hash])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_user_id users @relation("refresh_sessions_user_id", fields: [tenant_id, user_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, user_id])
+ rel_replaced_by_id refresh_sessions? @relation("refresh_sessions_replaced_by_id", fields: [tenant_id, replaced_by_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, replaced_by_id])
+ back_refresh_sessions_replaced_by_id refresh_sessions[] @relation("refresh_sessions_replaced_by_id")
+}
+
+model gateway_credentials {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ gateway Gateway 
+ key_version Int  @default(1)
+ encrypted_payload String @db.Text
+ @@unique([tenant_id, gateway])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model license_cache {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ installation_id String @db.Uuid
+ signed_token String @db.Text
+ last_checked_at DateTime @db.Timestamptz(6)
+ max_observed_at DateTime @db.Timestamptz(6)
+ @@unique([tenant_id, installation_id])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model subscriptions {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ plan PlanTier 
+ status SubscriptionStatus  @default(trial)
+ trial_ends_at DateTime? @db.Timestamptz(6)
+ period_ends_at DateTime? @db.Timestamptz(6)
+ features Json @db.JsonB
+ max_devices Int  @default(8)
+ max_rooms Int  @default(50)
+ @@unique([tenant_id])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model licenses {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ key_hash String @db.Text
+ installation_id String? @db.Uuid
+ issued_at DateTime @db.Timestamptz(6)
+ revoked_at DateTime? @db.Timestamptz(6)
+ @@unique([tenant_id, key_hash])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model subscription_billing {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ amount Decimal @db.Decimal(12, 2)
+ currency String @db.Text @default("NGN")
+ description String @db.Text
+ reference String @db.Text
+ paid_at DateTime? @db.Timestamptz(6)
+ @@unique([tenant_id, reference])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model hub_heartbeats {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ installation_id String @db.Uuid
+ hub_version String @db.Text
+ schema_version Int 
+ last_sync_at DateTime? @db.Timestamptz(6)
+ device_count Int  @default(0)
+ room_count Int  @default(0)
+ pending_count Int  @default(0)
+ failed_count Int  @default(0)
+ errors Json @db.JsonB
+ seen_at DateTime @db.Timestamptz(6)
+ @@unique([tenant_id, installation_id])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}
+
+model notifications {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ online_booking_id String @db.Uuid
+ channel String @db.Text
+ destination String @db.Text
+ payload Json @db.JsonB
+ status String @db.Text @default("pending")
+ attempts Int  @default(0)
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_online_booking_id online_bookings @relation("notifications_online_booking_id", fields: [tenant_id, online_booking_id], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, online_booking_id])
+}
+
+model draft_submissions {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ idempotency_key String @db.Text
+ kind String @db.Text
+ payload Json @db.JsonB
+ submitted_by String @db.Uuid
+ applied_entity_id String? @db.Uuid
+ @@unique([tenant_id, idempotency_key])
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+ rel_submitted_by users @relation("draft_submissions_submitted_by", fields: [tenant_id, submitted_by], references: [tenant_id, id], onDelete: Restrict, onUpdate: Restrict)
+ @@index([tenant_id, submitted_by])
+}
+
+model provider_audit {
+ id String @db.Uuid @id
+ tenant_id String @db.Uuid
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ deleted_at DateTime? @db.Timestamptz(6)
+ device_id String @db.Text @default("hub")
+ created_by String? @db.Uuid
+ actor String @db.Text
+ action String @db.Text
+ payload Json @db.JsonB
+ @@unique([tenant_id, id])
+ @@index([tenant_id])
+ @@index([tenant_id, created_by])
+}

@@ -1,0 +1,39 @@
+name: Phase 1 checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    services:
+      postgres:
+        image: postgres:16-bookworm
+        env:
+          POSTGRES_PASSWORD: ci-local-password-not-a-secret
+          POSTGRES_DB: contract
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run generate
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:postgres
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:ci-local-password-not-a-secret@localhost:5432/contract
+      - run: npm run setup:demo
+      - name: Create isolated hub and cloud test databases
+        run: |
+          node --import tsx scripts/ci-databases.ts
+          node --import tsx scripts/bootstrap.ts
+          npm run seed
+          npm run seed
+          node --import tsx --test tests/api.integration.ts
+      - run: npm audit --omit=dev --audit-level=high

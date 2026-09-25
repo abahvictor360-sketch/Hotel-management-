@@ -1,0 +1,33 @@
+# Ubuntu hub-only topology. Provision/migrate first, use .env.hub without provider secrets.
+services:
+  db:
+    image: postgres:16-bookworm
+    env_file: .env.database
+    volumes: ["hub-data:/var/lib/postgresql/data"]
+    restart: unless-stopped
+    healthcheck:
+      {
+        test: ["CMD-SHELL", "pg_isready -U postgres -d hotel"],
+        interval: 5s,
+        timeout: 3s,
+        retries: 20,
+      }
+  hub:
+    build: .
+    env_file: .env.hub
+    volumes: ["./secrets/license-public.pem:/app/secrets/license-public.pem:ro"]
+    ports: ["4000:4000"]
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+  backup:
+    image: postgres:16-bookworm
+    env_file: .env.backup
+    volumes:
+      ["./backups:/backups", "./deploy/backup-loop.sh:/backup-loop.sh:ro"]
+    entrypoint: ["sh", "/backup-loop.sh"]
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+volumes:
+  hub-data:

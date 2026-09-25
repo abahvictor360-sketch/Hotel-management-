@@ -1,0 +1,125 @@
+{
+  "tables": [
+    "tenants",
+    "roles",
+    "users",
+    "devices",
+    "guests",
+    "room_types",
+    "rooms",
+    "rate_plans",
+    "reservations",
+    "folios",
+    "service_categories",
+    "service_items",
+    "service_orders",
+    "service_order_items",
+    "folio_charges",
+    "payments",
+    "receipts",
+    "receipt_reprints",
+    "receipt_counters",
+    "shifts",
+    "housekeeping_tasks",
+    "inventory_items",
+    "inventory_movements",
+    "online_bookings",
+    "payment_transactions",
+    "audit_log",
+    "sync_queue",
+    "sync_metadata",
+    "settings",
+    "refresh_sessions",
+    "gateway_credentials",
+    "license_cache",
+    "subscriptions",
+    "licenses",
+    "subscription_billing",
+    "hub_heartbeats",
+    "notifications",
+    "draft_submissions",
+    "provider_audit"
+  ],
+  "refs": {
+    "users": {
+      "role_id": "roles"
+    },
+    "room_types": {},
+    "rooms": {
+      "room_type_id": "room_types"
+    },
+    "rate_plans": {
+      "room_type_id": "room_types"
+    },
+    "reservations": {
+      "guest_id": "guests",
+      "room_id": "rooms",
+      "room_type_id": "room_types",
+      "cloud_booking_id": "online_bookings"
+    },
+    "folios": {
+      "reservation_id": "reservations",
+      "guest_id": "guests"
+    },
+    "service_items": {
+      "category_id": "service_categories",
+      "inventory_item_id": "inventory_items"
+    },
+    "service_orders": {
+      "folio_id": "folios",
+      "category_id": "service_categories",
+      "room_id": "rooms",
+      "ordered_by": "users"
+    },
+    "service_order_items": {
+      "order_id": "service_orders",
+      "service_item_id": "service_items"
+    },
+    "folio_charges": {
+      "folio_id": "folios",
+      "reversal_of_id": "folio_charges"
+    },
+    "payments": {
+      "folio_id": "folios",
+      "order_id": "service_orders",
+      "received_by": "users",
+      "reversal_of_id": "payments"
+    },
+    "receipts": {
+      "folio_id": "folios",
+      "order_id": "service_orders",
+      "reversal_of_id": "receipts"
+    },
+    "receipt_reprints": {
+      "receipt_id": "receipts",
+      "requested_by": "users"
+    },
+    "shifts": {
+      "user_id": "users"
+    },
+    "housekeeping_tasks": {
+      "room_id": "rooms",
+      "assigned_to": "users"
+    },
+    "inventory_movements": {
+      "item_id": "inventory_items",
+      "moved_by": "users"
+    },
+    "online_bookings": {
+      "matched_reservation_id": "reservations"
+    },
+    "audit_log": {
+      "user_id": "users"
+    },
+    "refresh_sessions": {
+      "user_id": "users",
+      "replaced_by_id": "refresh_sessions"
+    },
+    "notifications": {
+      "online_booking_id": "online_bookings"
+    },
+    "draft_submissions": {
+      "submitted_by": "users"
+    }
+  }
+}

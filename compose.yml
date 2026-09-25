@@ -1,0 +1,73 @@
+# Development/demo: all services local, no cloud account required.
+# Run npm run setup:demo before docker compose up --build.
+x-app: &app
+  build: .
+  env_file: .env
+  volumes:
+    - ./secrets:/app/secrets:ro
+  restart: unless-stopped
+services:
+  db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: hotel
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["hub-data:/var/lib/postgresql/data"]
+    healthcheck:
+      {
+        test: ["CMD-SHELL", "pg_isready -U postgres -d hotel"],
+        interval: 3s,
+        timeout: 3s,
+        retries: 20,
+      }
+    restart: unless-stopped
+  cloud-db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: cloud
+    ports: ["127.0.0.1:5433:5432"]
+    volumes: ["cloud-data:/var/lib/postgresql/data"]
+    healthcheck:
+      {
+        test: ["CMD-SHELL", "pg_isready -U postgres -d cloud"],
+        interval: 3s,
+        timeout: 3s,
+        retries: 20,
+      }
+    restart: unless-stopped
+  setup:
+    <<: *app
+    restart: "no"
+    command:
+      ["sh", "-c", "node --import tsx scripts/bootstrap.ts && npm run seed"]
+    environment:
+      MIGRATION_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/hotel?schema=public
+      CLOUD_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@cloud-db:5432/cloud?schema=public
+    depends_on:
+      db: { condition: service_healthy }
+      cloud-db: { condition: service_healthy }
+  provider:
+    <<: *app
+    command: ["npm", "run", "start:provider"]
+    ports: ["127.0.0.1:4001:4001"]
+    environment:
+      PROVIDER_DATABASE_URL: postgresql://provider_app:${PROVIDER_DB_PASSWORD}@cloud-db:5432/cloud?schema=public
+      PROVIDER_ORIGIN: http://localhost:4001
+    depends_on:
+      setup: { condition: service_completed_successfully }
+  hub:
+    <<: *app
+    ports: ["4000:4000"]
+    environment:
+      DATABASE_URL: postgresql://hotel_app:${HOTEL_DB_PASSWORD}@db:5432/hotel?schema=public
+      LICENSE_DATABASE_URL: postgresql://license_agent:${LICENSE_DB_PASSWORD}@db:5432/hotel?schema=public
+      PROVIDER_URL: http://provider:4001
+      APP_ORIGIN: ${HUB_ORIGIN:-http://localhost:4000}
+    depends_on:
+      setup: { condition: service_completed_successfully }
+      provider: { condition: service_started }
+volumes:
+  hub-data:
+  cloud-data:
