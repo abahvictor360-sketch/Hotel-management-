@@ -65,7 +65,7 @@ export function priceStay(
   if (total.gt("9999999999.99"))
     throw new Error("Stay total exceeds the supported monetary limit.");
   return {
-    version: 1,
+    version: 1 as const,
     checkInDate,
     checkOutDate,
     nights,

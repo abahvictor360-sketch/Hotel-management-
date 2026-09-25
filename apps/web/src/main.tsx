@@ -8,6 +8,7 @@ import { FrontDesk } from "./FrontDesk";
 import { SyncPage, syncLabel, type SyncStatus } from "./Sync";
 import { ReportsView, type ReportSource } from "./Reports";
 import { DataExport } from "./DataExport";
+import { OnlineBookings } from "./OnlineBookings";
 import { download } from "./api";
 import { Icon, type IconName } from "./icons";
 type Theme = "light" | "dark" | "system";
@@ -322,6 +323,7 @@ function App() {
   const allTabs: [string, string, IconName, string][] = [
     ["Overview", "", "home", "Operations"],
     ["Front desk", "frontdesk.read", "bed", "Operations"],
+    ["Online bookings", "frontdesk.read", "globe", "Operations"],
     ["Services", "services", "utensils", "Operations"],
     ["Drafts", "drafts", "draft", "Operations"],
     ["Housekeeping", "housekeeping.read", "sparkle", "Operations"],
@@ -363,6 +365,7 @@ function App() {
     "Cloud sync": "What has reached the cloud, and what is still waiting.",
     "Audit trail": "Every change, who made it and from which device.",
     Reports: "Revenue, payments, occupancy and balances, from this hub.",
+    "Online bookings": "Requests from your booking website. Confirm each into a room.",
     "Data export": "Take all hotel records away, and share reports with owners.",
   };
   return (
@@ -405,7 +408,7 @@ function App() {
         </nav>
         <footer>
           <strong>Runs on your hotel network</strong>
-          <span>Works without internet. Hub version 0.5.0.</span>
+          <span>Works without internet. Hub version 0.6.0.</span>
         </footer>
       </aside>
       <div className="main">
@@ -654,11 +657,17 @@ function App() {
               status={syncStatus}
               refresh={refreshSync}
               canManage={can("sync.manage")}
-              canSeeBookings={can("frontdesk.read")}
             />
           ) : null}
           {tab === "Reports" ? <ReportsView source={hubReports} /> : null}
           {tab === "Data export" ? <DataExport writable={writable} /> : null}
+          {tab === "Online bookings" ? (
+            <OnlineBookings
+              writable={writable}
+              canWrite={can("frontdesk.write")}
+              isAdmin={who.roleName === "admin" && can("settings.write")}
+            />
+          ) : null}
           {tab === "Front desk" ? (
             <FrontDesk writable={writable} permissions={who.permissions} />
           ) : null}

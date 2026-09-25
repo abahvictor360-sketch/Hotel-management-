@@ -15,6 +15,11 @@ import {
 } from "../../../packages/core/src/sync-contract.js";
 import { applyEvent, tenantTx, type Conn } from "./sync-apply.js";
 import { remoteRouter } from "./remote-api.js";
+import {
+  bookingRouter,
+  jsonWithRawWebhooks,
+  type BookingDeps,
+} from "./booking-api.js";
 // Cloud side of replication. Hubs never receive cloud database credentials: each request
 // proves possession of that hotel's licence key for its bound installation, and every
 // query runs under that hotel's RLS context as the non-owner sync_agent role.
@@ -77,12 +82,17 @@ function checkVersion(body: { protocol: number; databaseRevision: number }) {
 // reports: a report_reader connection. Without it the remote dashboard is not served.
 export function createCloudApp(
   connect: Connect,
-  options: { reports?: Connect; dashboardDir?: string } = {},
+  options: {
+    reports?: Connect;
+    dashboardDir?: string;
+    // booking_agent connection and settings. Without it no public booking site is served.
+    booking?: BookingDeps;
+  } = {},
 ) {
   const app = express();
   app.disable("x-powered-by");
   app.use(helmet());
-  app.use(express.json({ limit: "8mb" }));
+  app.use(jsonWithRawWebhooks);
   app.use((_req, res, next) => {
     res.setHeader("Cache-Control", "no-store");
     next();
@@ -220,18 +230,26 @@ export function createCloudApp(
     }),
   );
   if (options.reports) app.use("/api/remote", remoteRouter(options.reports));
+  if (options.booking) app.use("/api/public", bookingRouter(options.booking));
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found." }));
-  if (options.reports && options.dashboardDir) {
+  if ((options.reports || options.booking) && options.dashboardDir) {
     const dir = options.dashboardDir;
     // The staff app's offline service worker belongs on the hub only. Without it the
     // dashboard always shows the live cloud copy.
     app.get(["/sw.js", "/registerSW.js", /^\/workbox-.*\.js$/, "/index.html"], (_req, res) =>
       res.status(404).end(),
     );
-    app.get("/", (_req, res) => res.redirect(302, "/dashboard"));
-    app.get("/dashboard", (_req, res) =>
-      res.sendFile("dashboard.html", { root: dir }),
-    );
+    if (options.reports) {
+      app.get("/", (_req, res) => res.redirect(302, "/dashboard"));
+      app.get("/dashboard", (_req, res) =>
+        res.sendFile("dashboard.html", { root: dir }),
+      );
+    }
+    // Public booking pages: /book/<hotel slug>, its status and payment return views.
+    if (options.booking)
+      app.get(/^\/book\/[a-z0-9-]+(\/(status|return))?\/?$/, (_req, res) =>
+        res.sendFile("book.html", { root: dir }),
+      );
     app.use(express.static(dir, { index: false }));
   }
   app.use(errors);

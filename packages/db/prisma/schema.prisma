@@ -74,6 +74,7 @@ enum OnlineStatus {
  pending
  confirmed
  rejected
+ cancelled
 }
 
 enum SubscriptionStatus {
@@ -689,6 +690,7 @@ model payment_transactions {
  status String @db.Text
  raw_response Json @db.JsonB
  verified_at DateTime? @db.Timestamptz(6)
+ online_booking_id String? @db.Uuid
  @@unique([tenant_id, gateway, reference])
  @@unique([tenant_id, id])
  @@index([tenant_id])

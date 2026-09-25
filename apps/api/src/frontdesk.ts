@@ -5,6 +5,7 @@ import { db, scope, base, mutation } from "./db.js";
 import { identity, requirePermission } from "./auth.js";
 import { route, HttpError } from "./http.js";
 import { command } from "./commands.js";
+import { cancelOnlineBooking } from "./online-bookings.js";
 import {
   isoDate,
   money,
@@ -819,7 +820,7 @@ frontdesk.post(
             }),
           );
         }
-        return mutation(tx, () =>
+        const updated = await mutation(tx, () =>
           tx.reservations.update({
             where: { id },
             data: {
@@ -829,6 +830,10 @@ frontdesk.post(
             },
           }),
         );
+        // Releases the website allotment and tells the guest.
+        if (stay.cloud_booking_id)
+          await cancelOnlineBooking(tx, who, stay.cloud_booking_id, input.reason);
+        return updated;
       }),
     );
   }),

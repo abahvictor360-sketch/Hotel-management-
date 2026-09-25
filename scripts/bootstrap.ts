@@ -27,6 +27,7 @@ for (const url of [local, cloud]) {
       ["license_agent", "LICENSE_DB_PASSWORD"],
       ["sync_agent", "SYNC_DB_PASSWORD"],
       ["report_reader", "REPORT_DB_PASSWORD"],
+      ["booking_agent", "BOOKING_DB_PASSWORD"],
     ]) {
       const password = process.env[key];
       if (!password || password.length < 24)

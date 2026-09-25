@@ -123,8 +123,11 @@ export type Booking = {
   checkOutDate: string;
   adults: number;
   children: number;
-  source: "walk_in" | "phone";
+  source: "walk_in" | "phone" | "online";
   notes?: string;
+  // Online bookings keep the price the guest was quoted and paid on the website.
+  price?: StayPrice;
+  cloudBookingId?: string;
 };
 export async function quoteBooking(tx: Tx, input: Booking) {
   stayDates.parse(input);
@@ -185,7 +188,13 @@ export async function createBooking(
         ? "Walk-in check-in must start today."
         : "New reservations cannot start in the past.",
     );
-  const price = await quoteBooking(tx, input);
+  const price = input.price ?? (await quoteBooking(tx, input));
+  if (
+    input.price &&
+    (input.price.checkInDate !== input.checkInDate ||
+      input.price.checkOutDate !== input.checkOutDate)
+  )
+    throw new HttpError(409, "The quoted price does not match the stay dates.");
   const available = await freeRooms(
     tx,
     who.tenantId,
@@ -223,6 +232,7 @@ export async function createBooking(
         status: "confirmed",
         source: input.source,
         notes: input.notes,
+        cloud_booking_id: input.cloudBookingId,
       },
     }),
   );
@@ -341,6 +351,9 @@ export async function checkIn(tx: Tx, who: Identity, id: string) {
   if (!folio) throw new HttpError(409, "An open folio is required.");
   await tx.$queryRaw`SELECT id FROM folios WHERE id=${folio.id}::uuid FOR UPDATE`;
   await postRoomCharges(tx, who, folio.id, id, storedPrice(stay));
+  // A website payment verified after the booking was confirmed is applied now.
+  if (stay.cloud_booking_id)
+    await applyOnlinePayments(tx, who, stay.cloud_booking_id, folio.id);
   await mutation(tx, () =>
     tx.reservations.update({
       where: { id },
@@ -417,4 +430,40 @@ export async function checkOut(tx: Tx, who: Identity, id: string) {
     }),
   );
   return { id, status: "checked_out", folioId: folio.id };
+}
+// Verified website payments become folio payments exactly once (payments are unique per
+// gateway reference). The gateway verified them in the cloud; the hub only records them.
+export async function applyOnlinePayments(
+  tx: Tx,
+  who: Identity,
+  bookingId: string,
+  folioId: string,
+) {
+  const verified = await tx.payment_transactions.findMany({
+    where: { online_booking_id: bookingId, status: "success", deleted_at: null },
+    orderBy: { created_at: "asc" },
+  });
+  const applied = [];
+  for (const t of verified) {
+    if (await tx.payments.findFirst({ where: { gateway_reference: t.reference } }))
+      continue;
+    applied.push(
+      await mutation(tx, () =>
+        tx.payments.create({
+          data: {
+            ...base(who),
+            folio_id: folioId,
+            amount: t.amount,
+            method: "online",
+            reference: t.gateway,
+            gateway_reference: t.reference,
+            received_by: who.userId!,
+            paid_at: t.verified_at ?? new Date(),
+            idempotency_key: `online:${t.id}`,
+          },
+        }),
+      ),
+    );
+  }
+  return applied;
 }

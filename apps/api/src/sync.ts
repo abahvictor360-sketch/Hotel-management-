@@ -126,29 +126,3 @@ sync.post(
     res.status(202).json({ started: !!getHubSync() });
   }),
 );
-// Bookings received from the website through the cloud. Conversion to a reservation
-// happens at the front desk (Phase 6 adds the booking page that creates them).
-sync.get(
-  "/online-bookings",
-  route(async (req, res) => {
-    const who = await identity(req);
-    requirePermission(who, "frontdesk.read");
-    res.json(
-      await scope(db, who, (tx) =>
-        tx.online_bookings.findMany({
-          where: { deleted_at: null },
-          orderBy: { created_at: "desc" },
-          take: 50,
-          select: {
-            id: true,
-            external_reference: true,
-            status: true,
-            payload: true,
-            matched_reservation_id: true,
-            created_at: true,
-          },
-        }),
-      ),
-    );
-  }),
-);

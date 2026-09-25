@@ -81,3 +81,9 @@ provisioning path, not the generic replication payload.
 Phase 5 reports run the same parameterised SQL on the hub (hotel_app) and in the cloud
 (report_reader, read-only transaction). The cloud dashboard authenticates with hashed
 access links that replicate inside the `remote_access` setting. See docs/PHASE-5.md.
+
+Phase 6 online booking runs in the cloud as booking_agent. The website sells from each
+room type's online allotment, so a stale cloud copy cannot overbook; the hub confirms each
+web booking into a real room. The cloud creates bookings and owns payments, the hub owns
+every later change to a booking, so replication never merges two edits. Gateway secrets
+are sealed on the hub to the cloud's public key. See docs/PHASE-6.md.

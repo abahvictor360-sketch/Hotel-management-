@@ -21,13 +21,6 @@ type QueueRow = {
   next_attempt_at: string | null;
   device_id: string;
 };
-type Booking = {
-  id: string;
-  external_reference: string;
-  status: string;
-  created_at: string;
-  matched_reservation_id: string | null;
-};
 const when = (v: string | null) =>
   v ? new Date(v).toLocaleString("en-NG") : "Never";
 export function syncLabel(s: SyncStatus | null) {
@@ -52,18 +45,15 @@ export function SyncPage({
   status,
   refresh,
   canManage,
-  canSeeBookings,
 }: {
   status: SyncStatus | null;
   refresh: () => Promise<void>;
   canManage: boolean;
-  canSeeBookings: boolean;
 }) {
   const [view, setView] = useState<"failed" | "pending">("failed");
   const [rows, setRows] = useState<QueueRow[]>([]);
   const [total, setTotal] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -76,7 +66,6 @@ export function SyncPage({
       setTotal(q.total);
       setSelected([]);
     }
-    if (canSeeBookings) setBookings(await api<Booking[]>("/online-bookings"));
   }
   useEffect(() => {
     void load().catch((e) => setError(e.message));
@@ -271,44 +260,6 @@ export function SyncPage({
                 ? "Nothing has failed. Every change is either uploaded or waiting its turn."
                 : "Nothing is waiting. The cloud copy is up to date."}
             </p>
-          )}
-        </section>
-      ) : null}
-      {canSeeBookings ? (
-        <section className="panel table-wrap">
-          <div className="panel-head">
-            <div>
-              <h2>Received from the website</h2>
-              <small>Online bookings pulled down from the cloud</small>
-            </div>
-          </div>
-          {bookings.length ? (
-            <table>
-              <thead>
-                <tr>
-                  <th>Reference</th>
-                  <th>Received</th>
-                  <th>Status</th>
-                  <th>Reservation</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((b) => (
-                  <tr key={b.id}>
-                    <td>{b.external_reference}</td>
-                    <td>{when(b.created_at)}</td>
-                    <td>
-                      <span className={`badge ${b.status === "pending" ? "warn" : ""}`}>
-                        {b.status}
-                      </span>
-                    </td>
-                    <td>{b.matched_reservation_id ? "Linked" : "Not yet"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="empty">No online bookings yet.</p>
           )}
         </section>
       ) : null}

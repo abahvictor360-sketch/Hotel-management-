@@ -31,6 +31,7 @@ const paths = {
   contrast: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 3v18a9 9 0 0 0 0-18",
   chart: "M3 3v18h18M7 16v1M11 11v6M15 7v10M19 12v5",
   download: "M12 3v12M7 10l5 5 5-5M4 21h16",
+  globe: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18",
 } as const;
 export type IconName = keyof typeof paths;
 export function Icon({ name }: { name: IconName }) {

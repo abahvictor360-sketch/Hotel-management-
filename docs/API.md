@@ -90,3 +90,29 @@ Header: Authorization Bearer access link code. Runs as report_reader in a read-o
 | GET | /api/remote/session | Hotel, link label, scopes, expiry, plan state, last sync time |
 | GET | /api/remote/reports/:kind | reports scope, Premium plan, live subscription |
 | GET | /api/remote/export | export scope; any subscription status |
+
+## Phase 6 online booking
+
+Hub:
+
+| Method | Path | Access / behaviour |
+|---|---|---|
+| GET | /api/online-bookings | frontdesk.read; status=pending, confirmed, rejected or cancelled; payment state |
+| GET | /api/online-bookings/:id/rooms | frontdesk.read; free rooms for a pending booking |
+| POST | /api/online-bookings/:id/confirm | frontdesk.write; requestId, optional roomId; creates the reservation and applies online payments |
+| POST | /api/online-bookings/:id/reject | frontdesk.write; requestId, reason (sent to the guest) |
+| GET | /api/online-booking/settings | settings.write; policy, allotments, gateway (never the secret), booking and webhook URLs |
+| PUT | /api/online-booking/settings | administrator; secret key is sealed for the cloud and write-only |
+
+Cloud public booking API (no login, rate limited, needs CLOUD_BOOKING_DATABASE_URL):
+
+| Method | Path | Behaviour |
+|---|---|---|
+| GET | /book/:slug | Booking page (also /status and /return) |
+| GET | /api/public/hotels/:slug | Hotel, room types sold online, payment policy |
+| POST | /api/public/hotels/:slug/quote | roomTypeId, checkIn, checkOut, adults, children; price and availability |
+| POST | /api/public/hotels/:slug/bookings | requestId, stay, guest, expectedTotal, payNow; returns reference and checkout URL |
+| POST | /api/public/hotels/:slug/bookings/:ref/status | email; the booking as the guest sees it |
+| POST | /api/public/hotels/:slug/bookings/:ref/pay | email; a new checkout for an unpaid booking |
+| POST | /api/public/hotels/:slug/payments/verify | reference; asks the gateway, never trusts the browser |
+| POST | /api/public/webhooks/:gateway/:slug | Gateway webhook; signature checked, then verified with the gateway |

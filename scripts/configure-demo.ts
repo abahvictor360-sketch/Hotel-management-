@@ -14,12 +14,25 @@ writeFileSync(
   "secrets/license-public.pem",
   publicKey.export({ type: "spki", format: "pem" }),
 );
+// Cloud sealing key pair: the hub seals payment gateway secrets with the public half;
+// only the cloud, which calls the gateway, holds the private half.
+const sealing = generateKeyPairSync("rsa", { modulusLength: 3072 });
+writeFileSync(
+  "secrets/cloud-sealing-private.pem",
+  sealing.privateKey.export({ type: "pkcs8", format: "pem" }),
+  { mode: 0o600 },
+);
+writeFileSync(
+  "secrets/cloud-sealing-public.pem",
+  sealing.publicKey.export({ type: "spki", format: "pem" }),
+);
 const random = () => randomBytes(24).toString("hex");
 const dbPassword = random(),
   providerDbPassword = random(),
   licenseDbPassword = random(),
   syncDbPassword = random(),
   reportDbPassword = random(),
+  bookingDbPassword = random(),
   ownerPassword = random();
 const adminPassword = randomBytes(15).toString("base64url"),
   providerPassword = randomBytes(15).toString("base64url");
@@ -42,6 +55,12 @@ const lines = {
   CLOUD_SYNC_DATABASE_URL: `postgresql://sync_agent:${syncDbPassword}@localhost:5433/cloud?schema=public`,
   REPORT_DB_PASSWORD: reportDbPassword,
   CLOUD_REPORT_DATABASE_URL: `postgresql://report_reader:${reportDbPassword}@localhost:5433/cloud?schema=public`,
+  BOOKING_DB_PASSWORD: bookingDbPassword,
+  CLOUD_BOOKING_DATABASE_URL: `postgresql://booking_agent:${bookingDbPassword}@localhost:5433/cloud?schema=public`,
+  CLOUD_SEALING_PRIVATE_KEY_FILE: "secrets/cloud-sealing-private.pem",
+  CLOUD_SEALING_PUBLIC_KEY_FILE: "secrets/cloud-sealing-public.pem",
+  CLOUD_PUBLIC_URL: "http://localhost:4002",
+  NOTIFY_LOG: "true",
   CLOUD_SYNC_URL: "http://localhost:4002",
   CLOUD_DASHBOARD_URL: "http://localhost:4002/dashboard",
   CLOUD_PORT: "4002",

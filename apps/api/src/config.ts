@@ -22,6 +22,10 @@ export const env = z
     HUB_LICENSE_KEY: z.string().optional(),
     // Public address of the management dashboard, shown next to new remote access links.
     CLOUD_DASHBOARD_URL: z.string().url().optional(),
+    // Public origin of the cloud service (booking site, guest links). Phase 6.
+    CLOUD_PUBLIC_URL: z.string().url().optional(),
+    // The cloud's public key: payment gateway secrets are sealed with it on this hub.
+    CLOUD_SEALING_PUBLIC_KEY_FILE: z.string().optional(),
   })
   .parse(process.env);
 export const publicKey = readFileSync(env.LICENSE_PUBLIC_KEY_FILE, "utf8");
