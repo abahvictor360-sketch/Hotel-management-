@@ -1038,19 +1038,22 @@ export function ServiceDesk({
                 />
                 Cut paper after receipt
               </label>
-              <button disabled={blocked}>Save printer settings</button>
+              <div className="row form-actions">
+                <button disabled={blocked}>Save printer settings</button>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={blocked}
+                  onClick={() =>
+                    void run(async () => {
+                      await send("/printing/test");
+                    })
+                  }
+                >
+                  Print test receipt
+                </button>
+              </div>
             </form>
-            <button
-              className="secondary"
-              disabled={blocked}
-              onClick={() =>
-                void run(async () => {
-                  await send("/printing/test");
-                })
-              }
-            >
-              Print test receipt
-            </button>
           </section>
           <section className="panel">
             <h2>Recent print jobs</h2>

@@ -227,6 +227,14 @@ td.wrap {
 form button {
   margin-top: 16px;
 }
+/* A form's buttons in one row: the row carries the spacing, not each button. */
+.form-actions {
+  margin-top: 16px;
+  gap: 10px;
+}
+.form-actions button {
+  margin-top: 0;
+}
 pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
