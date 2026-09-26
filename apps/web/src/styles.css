@@ -1544,3 +1544,182 @@ button.swatch[aria-checked="true"] {
 .book-contact a {
   color: var(--muted);
 }
+/* First-run setup guide */
+.setup {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.setup-steps {
+  position: sticky;
+  top: 92px;
+}
+.setup-steps ol {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+button.setup-step {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  text-align: left;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-weight: 400;
+  margin: 0;
+}
+button.setup-step:hover:not(:disabled) {
+  background: var(--surface-2);
+  opacity: 1;
+}
+button.setup-step.active {
+  background: var(--surface-2);
+  font-weight: 600;
+}
+button.setup-step small {
+  color: var(--muted);
+  font-weight: 400;
+}
+.setup-check {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.setup-step.done .setup-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-text);
+}
+.setup-step.active:not(.done) .setup-check {
+  border-color: var(--primary);
+  color: var(--text);
+}
+.setup-progress strong {
+  font-size: 14px;
+}
+.meter {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+  margin: 8px 0;
+}
+.meter span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+.setup-body {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.setup-body > .stack,
+.setup-body > .grid {
+  margin: 0;
+}
+.setup-intro h2 {
+  font-size: 22px;
+  margin: 4px 0 6px;
+}
+.setup-intro .success {
+  margin: 12px 0 0;
+}
+.setup-nav {
+  justify-content: flex-end;
+  gap: 10px;
+}
+.setup-nav button:first-child {
+  margin-right: auto;
+}
+.setup-roomlist,
+.setup-device {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.setup-roomlist {
+  justify-content: flex-start;
+  align-items: baseline;
+}
+.setup-roomlist strong {
+  min-width: 120px;
+}
+.setup-device small {
+  display: block;
+}
+.setup-missing {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.chips {
+  margin-bottom: 8px;
+}
+.chips button {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+label.checkbox input {
+  width: auto;
+}
+.small {
+  font-size: 12px;
+}
+.field-hint {
+  display: block;
+  margin-top: 6px;
+}
+.setup-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.setup-card > div {
+  flex: 1;
+  min-width: 220px;
+}
+.setup-card h2 {
+  margin: 4px 0;
+}
+.setup-card .meter {
+  max-width: 360px;
+}
+@media (max-width: 850px) {
+  .setup {
+    grid-template-columns: 1fr;
+  }
+  .setup-steps {
+    position: static;
+  }
+}

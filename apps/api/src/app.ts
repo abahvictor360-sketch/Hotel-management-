@@ -5,7 +5,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { env } from "./config.js";
 import { auth, identity, requirePermission, passwordSchema } from "./auth.js";
-import { db, scope, base, mutation } from "./db.js";
+import { db, scope, base, mutation, type Tx } from "./db.js";
 import { getLicense, refreshLicense } from "./licensing.js";
 import { route, errors, HttpError } from "./http.js";
 import { permissions } from "../../../packages/core/src/permissions.js";
@@ -19,7 +19,16 @@ import { drafts } from "./drafts.js";
 import { sync } from "./sync.js";
 import { reporting } from "./reporting.js";
 import { onlineBookings } from "./online-bookings.js";
-import { BOOKING_SETTING } from "../../../packages/core/src/booking.js";
+import {
+  BOOKING_SETTING,
+  readBookingSettings,
+} from "../../../packages/core/src/booking.js";
+import {
+  ONBOARDING_SETTING,
+  onboardingStatus,
+  readOnboarding,
+  stepIds,
+} from "../../../packages/core/src/onboarding.js";
 import { REMOTE_SETTING } from "./remote-access.js";
 import {
   brandingSchema,
@@ -390,6 +399,104 @@ app.put(
               })
             : tx.settings.create({ data: { ...base(who), ...body } }),
         );
+      }),
+    );
+  }),
+);
+// First-run setup. Progress is computed from the hotel's own data on every read, so it
+// stays true when rooms or staff change elsewhere.
+async function onboardingState(tx: Tx) {
+  const tenant = await tx.tenants.findUniqueOrThrow({
+    where: { id: env.HOTEL_ID },
+  });
+  const settings = await tx.settings.findMany({
+    where: {
+      key: { in: ["branding", BOOKING_SETTING, ONBOARDING_SETTING] },
+      deleted_at: null,
+    },
+  });
+  const value = (key: string) => settings.find((s) => s.key === key)?.value;
+  const brand = readBranding(value("branding") ?? tenant.branding, tenant.name);
+  const [roomTypes, rooms, staff, devices] = await Promise.all([
+    tx.room_types.count({ where: { deleted_at: null } }),
+    tx.rooms.count({ where: { deleted_at: null } }),
+    tx.users.count({ where: { deleted_at: null, is_active: true } }),
+    tx.devices.count({ where: { deleted_at: null, revoked_at: null } }),
+  ]);
+  const stored = readOnboarding(value(ONBOARDING_SETTING));
+  return {
+    stored,
+    existing: settings.find((s) => s.key === ONBOARDING_SETTING) ?? null,
+    status: onboardingStatus(
+      {
+        address: brand.address,
+        phone: brand.phone,
+        email: brand.email,
+        roomTypes,
+        rooms,
+        staff,
+        devices,
+        bookingEnabled: readBookingSettings(value(BOOKING_SETTING)).enabled,
+      },
+      stored,
+    ),
+  };
+}
+app.get(
+  "/api/onboarding",
+  route(async (req, res) => {
+    const who = await identity(req);
+    requirePermission(who, "settings.read");
+    res.json((await scope(db, who, onboardingState)).status);
+  }),
+);
+// Marks a review step (taxes, printer, ...) as checked or skipped, or finishes setup once
+// every required step is done.
+app.post(
+  "/api/onboarding",
+  route(async (req, res) => {
+    const who = await identity(req);
+    requirePermission(who, "settings.write");
+    const license = await getLicense();
+    if (!license.writable) throw new HttpError(423, license.reason);
+    const body = z
+      .union([
+        z.object({ review: z.enum(stepIds) }).strict(),
+        z.object({ finish: z.literal(true) }).strict(),
+      ])
+      .parse(req.body);
+    res.json(
+      await scope(db, { ...who, writable: true }, async (tx) => {
+        const { stored, existing, status } = await onboardingState(tx);
+        let next = stored;
+        if ("review" in body) {
+          if (stored.reviewed.includes(body.review)) return status;
+          next = { ...stored, reviewed: [...stored.reviewed, body.review] };
+        } else {
+          if (!status.ready)
+            throw new HttpError(
+              409,
+              "Finish the required steps first: " +
+                status.steps
+                  .filter((s) => s.required && !s.done)
+                  .map((s) => s.title.toLowerCase())
+                  .join(", ") +
+                ".",
+            );
+          if (stored.completedAt) return status;
+          next = { ...stored, completedAt: new Date().toISOString() };
+        }
+        await mutation(tx, () =>
+          existing
+            ? tx.settings.update({
+                where: { id: existing.id },
+                data: { value: next },
+              })
+            : tx.settings.create({
+                data: { ...base(who), key: ONBOARDING_SETTING, value: next },
+              }),
+        );
+        return (await onboardingState(tx)).status;
       }),
     );
   }),

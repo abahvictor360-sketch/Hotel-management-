@@ -13,6 +13,7 @@ import { download } from "./api";
 import { Icon, type IconName } from "./icons";
 import { restoreBrand, setBrand, useBrand } from "./brand";
 import { BrandingSettings } from "./BrandingSettings";
+import { SetupCard, SetupWizard, type OnboardingStatus } from "./SetupWizard";
 type Theme = "light" | "dark" | "system";
 const reportPath = (kind: string, from: string, to: string) =>
   `/reports/${kind}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
@@ -115,7 +116,8 @@ function App() {
     [devices, setDevices] = useState<Device[]>([]),
     [audit, setAudit] = useState<any[]>([]),
     [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null),
-    [theme, setTheme] = useState<Theme>(savedTheme);
+    [theme, setTheme] = useState<Theme>(savedTheme),
+    [setup, setSetup] = useState<OnboardingStatus | null>(null);
   async function refreshSync() {
     setSyncStatus(await api<SyncStatus>("/sync/status"));
   }
@@ -130,10 +132,23 @@ function App() {
   }
   const can = (permission: string) =>
     who?.permissions.includes(permission) ?? false;
+  async function refreshSetup() {
+    setSetup(await api<OnboardingStatus>("/onboarding"));
+  }
   async function load() {
     const profile = await api<Identity>("/auth/me");
     setWho(profile);
     if (!profile.forcePasswordChange) setData(await api("/dashboard"));
+    if (
+      !profile.forcePasswordChange &&
+      profile.permissions.includes("settings.read")
+    ) {
+      const status = await api<OnboardingStatus>("/onboarding");
+      setSetup(status);
+      // A new hotel's administrator lands on the setup guide until it is finished.
+      if (!status.completedAt && profile.permissions.includes("settings.write"))
+        setTab((t) => (t === "Overview" ? "Setup guide" : t));
+    }
   }
   useEffect(() => {
     let cancelled = false;
@@ -355,6 +370,7 @@ function App() {
     ["Receipts", "billing.read", "receipt", "Finance"],
     ["Inventory", "inventory.read", "box", "Finance"],
     ["Reports", "reports.read", "chart", "Finance"],
+    ["Setup guide", "settings.read", "flag", "Setup"],
     ["Menu setup", "settings.write", "list", "Setup"],
     ["Printer", "settings.write", "printer", "Setup"],
     ["Staff", "staff.read", "users", "Admin"],
@@ -385,6 +401,8 @@ function App() {
   const groups = [...new Set(tabs.map((t) => t[3]))];
   const subtitle: Record<string, string> = {
     Overview: "Today at a glance across the hotel.",
+    "Setup guide":
+      "Everything your hotel needs before its first guest. Progress saves as you go.",
     "Front desk": "Arrivals, departures, rooms and guests.",
     "Cloud sync": "What has reached the cloud, and what is still waiting.",
     "Audit trail": "Every change, who made it and from which device.",
@@ -547,6 +565,19 @@ function App() {
             <div className="success" role="status">
               {message}
             </div>
+          ) : null}
+          {tab === "Overview" && setup && can("settings.write") ? (
+            <SetupCard status={setup} open={() => setTab("Setup guide")} />
+          ) : null}
+          {tab === "Setup guide" && setup ? (
+            <SetupWizard
+              status={setup}
+              refresh={refreshSetup}
+              canWrite={writable && !busy && can("settings.write")}
+              perform={perform}
+              notify={setMessage}
+              openTab={setTab}
+            />
           ) : null}
           {tab === "Overview" ? (
             <>

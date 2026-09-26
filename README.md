@@ -198,10 +198,28 @@ a database advisory lock. Room-limit enforcement is part of Phase 2 room creatio
 6. Remove migration credentials from the running service environment. Start the
    hub and change the administrator password. Register the other devices.
 
-The full first-run wizard, CSV import, printer test and compiled Windows installer
-are scheduled with the operational modules. They are not represented as completed
-by this Phase 1 release. New tenant administrators are created on their hub,
-not in the provider cloud database, so their login works during internet loss.
+7. Sign in as the administrator. The hub opens the **Setup guide**, which walks
+   through everything the hotel needs before its first guest:
+
+   | Step | Required | Done when |
+   | --- | --- | --- |
+   | Hotel profile and branding | yes | a real address and a phone or email are saved (logo and colour optional) |
+   | Room types and rates | yes | at least one room type exists |
+   | Rooms | yes | at least one room exists; add many at once with ranges like `101-110, G1-G4` |
+   | Taxes and service charge | yes | an administrator applies or confirms the VAT and service charge rates |
+   | Staff accounts | no | another active account exists (each gets a one-time temporary password) |
+   | Devices | yes | a device is registered; copy its enrolment link to each terminal |
+   | Receipt printer | no | confirmed on the Printer page after a test print |
+   | Online booking | no | online booking is turned on, or skipped |
+
+   Progress is worked out from the hotel's own data, so it stays true when rooms or
+   staff change elsewhere. Every step saves as it goes and can be left and resumed.
+   **Finish setup** is accepted only once every required step is done. The guide
+   stays under Setup for later review, and Overview shows progress until it is finished.
+
+CSV import and a compiled Windows installer are not part of this release. New tenant
+administrators are created on their hub, not in the provider cloud database, so their
+login works during internet loss.
 
 ## Windows hub
 
