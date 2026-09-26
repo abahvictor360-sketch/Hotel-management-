@@ -6,7 +6,7 @@ import { identity, requirePermission, type Identity } from "./auth.js";
 import { db, scope, base, mutation, type Tx } from "./db.js";
 import { route, HttpError } from "./http.js";
 import { command } from "./commands.js";
-import { env } from "./config.js";
+import { env, pem } from "./config.js";
 import { getLicense } from "./licensing.js";
 import {
   applyOnlinePayments,
@@ -35,9 +35,10 @@ const requestFields = { requestId: uuid };
 // The cloud's public key. Gateway secrets are sealed with it and never readable here.
 const sealingKey = (() => {
   try {
-    return env.CLOUD_SEALING_PUBLIC_KEY_FILE
-      ? readFileSync(env.CLOUD_SEALING_PUBLIC_KEY_FILE, "utf8")
-      : null;
+    return (
+      pem(env.CLOUD_SEALING_PUBLIC_KEY, env.CLOUD_SEALING_PUBLIC_KEY_FILE) ??
+      null
+    );
   } catch {
     return null;
   }

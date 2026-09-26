@@ -31,6 +31,7 @@ const migrations = [
   "202609250005_sync",
   "202609250006_reports",
   "202609250007_booking",
+  "202609250008_hardening",
 ];
 async function database() {
   const db = new PGlite({ extensions: { btree_gist, pg_trgm } });

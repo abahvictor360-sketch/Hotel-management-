@@ -12,7 +12,9 @@ export const env = z
     JWT_SECRET: z.string().min(32),
     PORT: z.coerce.number().default(4000),
     APP_ORIGIN: z.string().url().default("http://localhost:5173"),
-    LICENSE_PUBLIC_KEY_FILE: z.string(),
+    // A file path on a hub; the PEM itself where there is no disk (serverless).
+    LICENSE_PUBLIC_KEY_FILE: z.string().optional(),
+    LICENSE_PUBLIC_KEY: z.string().optional(),
     LICENSE_DATABASE_URL: z.string().min(1),
     PROVIDER_URL: z.string().url().default("http://localhost:4001"),
     CREDENTIAL_ENCRYPTION_KEY: z.string().regex(/^[a-f0-9]{64}$/i),
@@ -26,6 +28,12 @@ export const env = z
     CLOUD_PUBLIC_URL: z.string().url().optional(),
     // The cloud's public key: payment gateway secrets are sealed with it on this hub.
     CLOUD_SEALING_PUBLIC_KEY_FILE: z.string().optional(),
+    CLOUD_SEALING_PUBLIC_KEY: z.string().optional(),
   })
   .parse(process.env);
-export const publicKey = readFileSync(env.LICENSE_PUBLIC_KEY_FILE, "utf8");
+export const pem = (value?: string, file?: string) =>
+  value?.replace(/\\n/g, "\n") ?? (file ? readFileSync(file, "utf8") : undefined);
+const licenseKey = pem(env.LICENSE_PUBLIC_KEY, env.LICENSE_PUBLIC_KEY_FILE);
+if (!licenseKey)
+  throw new Error("Set LICENSE_PUBLIC_KEY_FILE or LICENSE_PUBLIC_KEY.");
+export const publicKey = licenseKey;

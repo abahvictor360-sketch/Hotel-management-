@@ -19,6 +19,7 @@ test("PostgreSQL 16 contract", async () => {
       "202609250005_sync",
       "202609250006_reports",
       "202609250007_booking",
+      "202609250008_hardening",
     ])
       await db.query(
         readFileSync(

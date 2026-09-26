@@ -27,10 +27,12 @@
     "setup:demo": "node --import tsx scripts/configure-demo.ts",
     "backup": "node --import tsx scripts/backup.ts",
     "provision:hub": "node --import tsx scripts/provision-hub.ts",
-    "create-admin": "node --import tsx scripts/create-admin.ts"
+    "create-admin": "node --import tsx scripts/create-admin.ts",
+    "vercel-build": "npm run generate && npm run build -w @hotel/web && npm run build -w @hotel/provider && esbuild deploy/vercel/entry.ts --bundle --platform=node --format=esm --target=node22 --packages=external --outfile=deploy/vercel/dist/entry.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
+    "@vercel/functions": "3.9.9",
     "bcryptjs": "3.0.2",
     "cookie-parser": "1.4.7",
     "dotenv": "16.6.1",
@@ -46,6 +48,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "esbuild": "0.25.12",
     "@electric-sql/pglite": "0.3.14",
     "@types/cookie-parser": "1.4.9",
     "@types/express": "4.17.23",

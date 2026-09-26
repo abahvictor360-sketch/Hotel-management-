@@ -18,14 +18,22 @@ const config = z
     PROVIDER_DATABASE_URL: z.string(),
     PROVIDER_JWT_SECRET: z.string().min(32),
     PROVIDER_PASSWORD_HASH: z.string().min(50),
-    LICENSE_PRIVATE_KEY_FILE: z.string(),
+    LICENSE_PRIVATE_KEY_FILE: z.string().optional(),
+    // The PEM itself, where there is no disk (serverless).
+    LICENSE_PRIVATE_KEY: z.string().optional(),
     PROVIDER_ORIGIN: z.string().default("http://localhost:5174"),
   })
   .parse(process.env);
 export const providerDb = new PrismaClient({
   datasourceUrl: config.PROVIDER_DATABASE_URL,
 });
-const privateKey = readFileSync(config.LICENSE_PRIVATE_KEY_FILE, "utf8");
+const privateKey =
+  config.LICENSE_PRIVATE_KEY?.replace(/\\n/g, "\n") ??
+  (config.LICENSE_PRIVATE_KEY_FILE
+    ? readFileSync(config.LICENSE_PRIVATE_KEY_FILE, "utf8")
+    : null);
+if (!privateKey)
+  throw new Error("Set LICENSE_PRIVATE_KEY_FILE or LICENSE_PRIVATE_KEY.");
 export const providerApp = express();
 providerApp.disable("x-powered-by");
 providerApp.use(helmet());
