@@ -435,7 +435,10 @@ function App() {
       <div className="main">
         <header className="topbar">
           <div className="crumb">
-            <span className="dot" aria-hidden="true" />
+            <span
+              className={`dot ${!reachable ? "error" : sync.tone === "ok" ? "ok" : ""}`}
+              aria-hidden="true"
+            />
             {branding.name}
           </div>
           <div className="row">

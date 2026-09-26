@@ -1041,6 +1041,7 @@ export function ServiceDesk({
               <button disabled={blocked}>Save printer settings</button>
             </form>
             <button
+              className="secondary"
               disabled={blocked}
               onClick={() =>
                 void run(async () => {

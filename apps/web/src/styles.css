@@ -63,7 +63,7 @@
   --warn: #fcd34d;
   --error-bg: #3b1515;
   --error: #fca5a5;
-  --shadow: none;
+  --shadow: 0 0 0 transparent;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -90,7 +90,7 @@
     --warn: #fcd34d;
     --error-bg: #3b1515;
     --error: #fca5a5;
-    --shadow: none;
+    --shadow: 0 0 0 transparent;
     color-scheme: dark;
   }
 }
@@ -1031,6 +1031,23 @@ textarea:focus {
   box-shadow: var(--shadow);
   padding: 0 10px 0 22px;
   top: 16px;
+}
+/* The bar floats 16px below the top edge. A second, canvas-coloured shadow fills that
+   gap so content scrolling underneath does not show above the bar. */
+.topbar {
+  box-shadow:
+    var(--shadow),
+    0 -24px 0 16px var(--bg);
+}
+/* An action button placed straight after a form sits apart from the form's own button. */
+form + button {
+  margin-top: 10px;
+}
+.dot.ok {
+  background: var(--ok);
+}
+.dot.error {
+  background: var(--danger, #dc2626);
 }
 .icon-button {
   border: 1px solid var(--border);
