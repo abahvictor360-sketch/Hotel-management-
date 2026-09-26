@@ -1723,3 +1723,53 @@ label.checkbox input {
     position: static;
   }
 }
+/* Data import */
+.import-kinds {
+  margin-bottom: 12px;
+}
+.import-kinds button {
+  margin: 0;
+}
+.import-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 6px;
+}
+.import-columns span {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.import-columns span.required {
+  border-color: var(--primary);
+}
+.import-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+.import-summary > div {
+  border-radius: 16px;
+  background: var(--surface-2);
+  padding: 12px 14px;
+  display: grid;
+}
+.import-summary strong {
+  font-size: 24px;
+  font-weight: 600;
+}
+.import-summary span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.import-summary .bad {
+  background: var(--error-bg);
+}
+.import-summary .bad strong {
+  color: var(--error);
+}

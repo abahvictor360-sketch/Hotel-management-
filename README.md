@@ -217,7 +217,15 @@ a database advisory lock. Room-limit enforcement is part of Phase 2 room creatio
    **Finish setup** is accepted only once every required step is done. The guide
    stays under Setup for later review, and Overview shows progress until it is finished.
 
-CSV import and a compiled Windows installer are not part of this release. New tenant
+Rooms, menu items and guests can also be brought in from a spreadsheet under
+**Setup → Data import**. Download the template for each kind, or use your own headings
+(common names such as "Room No" or "Price" are recognised; comma, semicolon and tab
+separated files all work). The hub checks the whole file first and lists every problem
+by row; nothing is written until the file is clean and you confirm. An import is all or
+nothing, and records already on the hub are skipped, so uploading a file twice is safe.
+New room types are created from the first row that names them, which must give a rate.
+
+A compiled Windows installer is not part of this release. New tenant
 administrators are created on their hub, not in the provider cloud database, so their
 login works during internet loss.
 

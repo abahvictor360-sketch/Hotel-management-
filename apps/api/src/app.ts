@@ -19,6 +19,7 @@ import { drafts } from "./drafts.js";
 import { sync } from "./sync.js";
 import { reporting } from "./reporting.js";
 import { onlineBookings } from "./online-bookings.js";
+import { importer } from "./importer.js";
 import {
   BOOKING_SETTING,
   readBookingSettings,
@@ -90,6 +91,7 @@ app.use("/api", printing);
 app.use("/api", operations);
 app.use("/api", drafts);
 app.use("/api", sync);
+app.use("/api", importer);
 app.use("/api", reporting);
 app.use("/api", onlineBookings);
 app.get(

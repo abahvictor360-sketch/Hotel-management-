@@ -40,4 +40,5 @@ jobs:
           node --import tsx --test tests/billing.integration.ts
           node --import tsx --test tests/reports.integration.ts
           node --import tsx --test tests/booking.integration.ts
+          node --import tsx --test tests/import.integration.ts
       - run: npm audit --omit=dev --audit-level=high

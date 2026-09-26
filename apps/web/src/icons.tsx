@@ -33,6 +33,7 @@ const paths = {
   download: "M12 3v12M7 10l5 5 5-5M4 21h16",
   check: "M5 12.5l4.5 4.5L19 7.5",
   flag: "M5 21V4M5 4h12l-2.5 4L17 12H5",
+  upload: "M12 16V4M7 9l5-5 5 5M4 20h16",
   globe: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18",
 } as const;
 export type IconName = keyof typeof paths;

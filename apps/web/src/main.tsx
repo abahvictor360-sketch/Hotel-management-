@@ -14,6 +14,7 @@ import { Icon, type IconName } from "./icons";
 import { restoreBrand, setBrand, useBrand } from "./brand";
 import { BrandingSettings } from "./BrandingSettings";
 import { SetupCard, SetupWizard, type OnboardingStatus } from "./SetupWizard";
+import { ImportData } from "./ImportData";
 type Theme = "light" | "dark" | "system";
 const reportPath = (kind: string, from: string, to: string) =>
   `/reports/${kind}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
@@ -371,6 +372,7 @@ function App() {
     ["Inventory", "inventory.read", "box", "Finance"],
     ["Reports", "reports.read", "chart", "Finance"],
     ["Setup guide", "settings.read", "flag", "Setup"],
+    ["Data import", "import", "upload", "Setup"],
     ["Menu setup", "settings.write", "list", "Setup"],
     ["Printer", "settings.write", "printer", "Setup"],
     ["Staff", "staff.read", "users", "Admin"],
@@ -386,6 +388,7 @@ function App() {
       !p ||
       can(p) ||
       (p === "admin" && who.roleName === "admin" && can("settings.write")) ||
+      (p === "import" && (can("settings.write") || can("frontdesk.write"))) ||
       (p === "drafts" &&
         who.permissions.some(
           (x) =>
@@ -401,6 +404,7 @@ function App() {
   const groups = [...new Set(tabs.map((t) => t[3]))];
   const subtitle: Record<string, string> = {
     Overview: "Today at a glance across the hotel.",
+    "Data import": "Bring rooms, menu items and guests in from a spreadsheet.",
     "Setup guide":
       "Everything your hotel needs before its first guest. Progress saves as you go.",
     "Front desk": "Arrivals, departures, rooms and guests.",
@@ -568,6 +572,9 @@ function App() {
           ) : null}
           {tab === "Overview" && setup && can("settings.write") ? (
             <SetupCard status={setup} open={() => setTab("Setup guide")} />
+          ) : null}
+          {tab === "Data import" ? (
+            <ImportData permissions={who.permissions} writable={writable} />
           ) : null}
           {tab === "Setup guide" && setup ? (
             <SetupWizard

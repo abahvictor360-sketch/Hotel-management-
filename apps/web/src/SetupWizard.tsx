@@ -137,10 +137,29 @@ export function SetupWizard({
                 perform={perform}
                 notify={saved}
               />
-            ) : step.id === "roomTypes" ? (
-              <RoomTypes canWrite={canWrite} perform={perform} saved={saved} />
-            ) : step.id === "rooms" ? (
-              <Rooms canWrite={canWrite} perform={perform} saved={saved} />
+            ) : step.id === "roomTypes" || step.id === "rooms" ? (
+              <>
+                {step.id === "roomTypes" ? (
+                  <RoomTypes
+                    canWrite={canWrite}
+                    perform={perform}
+                    saved={saved}
+                  />
+                ) : (
+                  <Rooms canWrite={canWrite} perform={perform} saved={saved} />
+                )}
+                <p className="muted small">
+                  Have your rooms in a spreadsheet?{" "}
+                  <button
+                    type="button"
+                    className="link"
+                    onClick={() => openTab("Data import")}
+                  >
+                    Import them from a CSV file
+                  </button>
+                  , room types included.
+                </p>
+              </>
             ) : step.id === "taxes" ? (
               <Taxes
                 canWrite={canWrite}
