@@ -28,6 +28,12 @@ function cronAuthorized(req: Request) {
     timingSafeEqual(got, want)
   );
 }
+// Vercel's edge is the one proxy in front of every function and sets X-Forwarded-For
+// to the visitor's address; trusting that hop gives rate limits the real client IP.
+const behindVercel = <T extends express.Express>(a: T) => {
+  a.set("trust proxy", 1);
+  return a;
+};
 const background = (label: string, work: () => Promise<unknown>) =>
   waitUntil(
     work().catch((e) =>
@@ -79,7 +85,8 @@ async function cloud() {
         }
       : undefined,
   });
-  const app = express();
+  behindVercel(inner);
+  const app = behindVercel(express());
   app.disable("x-powered-by");
   app.get("/api/cron/tick", (req, res) => {
     if (!cronAuthorized(req)) return res.status(401).end();
@@ -105,7 +112,7 @@ async function provider() {
   );
   const { assertRuntimeRole } = await import("../../apps/api/src/db.js");
   await assertRuntimeRole(providerDb, "provider_app");
-  return providerApp;
+  return behindVercel(providerApp);
 }
 async function hub() {
   const { app: inner, HUB_VERSION } = await import("../../apps/api/src/app.js");
@@ -156,10 +163,16 @@ async function hub() {
     )
       return;
     lastLicense = Date.now();
-    background("license", () => refreshLicense(env.HUB_LICENSE_KEY!));
+    // A cold provider can outlast the 8-second licence timeout; by the retry it is warm.
+    background("license", () =>
+      refreshLicense(env.HUB_LICENSE_KEY!).catch(() =>
+        refreshLicense(env.HUB_LICENSE_KEY!),
+      ),
+    );
   };
   licenseSoon(true);
-  const app = express();
+  behindVercel(inner);
+  const app = behindVercel(express());
   app.disable("x-powered-by");
   app.get("/api/cron/tick", (req, res) => {
     if (!cronAuthorized(req)) return res.status(401).end();
