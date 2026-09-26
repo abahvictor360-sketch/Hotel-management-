@@ -4,10 +4,12 @@ import "./styles.css";
 import { ReportsView, type ReportSource } from "./Reports";
 import { saveResponse } from "./api";
 import { Icon } from "./icons";
+import { setBrand, type Brand } from "./brand";
 // Read-only management dashboard, served by the cloud sync API from the cloud copy.
 // The access code comes from a hotel administrator. It is kept for this browser tab only.
 type Session = {
   hotel: string;
+  brand?: Partial<Brand>;
   label: string;
   scopes: string[];
   expiresAt: string;
@@ -73,6 +75,9 @@ function Remote() {
     json<Session>(token, "/session")
       .then((s) => {
         setSession(s);
+        setBrand(s.brand ?? { name: s.hotel }, {
+          title: `${s.hotel} · Owner dashboard`,
+        });
         setError("");
       })
       .catch((e) => {
@@ -136,7 +141,11 @@ function Remote() {
     <div className="remote">
       <header className="topbar">
         <div className="crumb">
-          <span className="dot" aria-hidden="true" />
+          {session.brand?.logoUrl ? (
+            <img className="crumb-logo" src={session.brand.logoUrl} alt="" />
+          ) : (
+            <span className="dot ok" aria-hidden="true" />
+          )}
           {session.hotel}
         </div>
         <div className="row">

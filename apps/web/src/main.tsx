@@ -11,6 +11,8 @@ import { DataExport } from "./DataExport";
 import { OnlineBookings } from "./OnlineBookings";
 import { download } from "./api";
 import { Icon, type IconName } from "./icons";
+import { restoreBrand, setBrand, useBrand } from "./brand";
+import { BrandingSettings } from "./BrandingSettings";
 type Theme = "light" | "dark" | "system";
 const reportPath = (kind: string, from: string, to: string) =>
   `/reports/${kind}?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
@@ -32,6 +34,7 @@ const savedTheme = (() => {
   }
 })();
 applyTheme(savedTheme);
+restoreBrand();
 // Enrolment link: an administrator opens /?device=<registered device ID> once on a
 // terminal, and that browser remembers which device it is.
 (() => {
@@ -104,8 +107,8 @@ function App() {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
-  const [branding, setBranding] = useState({ name: "Hotel Hub", logoUrl: "" }),
-    [data, setData] = useState<Dashboard | null>(null),
+  const branding = useBrand();
+  const [data, setData] = useState<Dashboard | null>(null),
     [reachable, setReachable] = useState(true),
     [staff, setStaff] = useState<Staff[]>([]),
     [roles, setRoles] = useState<Role[]>([]),
@@ -136,7 +139,7 @@ function App() {
     let cancelled = false;
     void api<typeof branding>("/branding")
       .then((v) => {
-        if (!cancelled) setBranding(v);
+        if (!cancelled) setBrand(v, { remember: true });
       })
       .catch(() => {});
     void restoreSession()
@@ -233,7 +236,9 @@ function App() {
           <img className="logo" src={branding.logoUrl} alt="Hotel logo" />
         ) : null}
         <h1>{branding.name}</h1>
-        <p className="muted">Sign in on your hotel network.</p>
+        <p className="muted">
+          {branding.tagline || "Sign in on your hotel network."}
+        </p>
         {error ? (
           <p className="error-message" role="alert">
             {error}
@@ -393,8 +398,15 @@ function App() {
     <div className="shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            <Icon name="building" />
+          <span
+            className={`brand-mark${branding.logoUrl ? " has-logo" : ""}`}
+            aria-hidden="true"
+          >
+            {branding.logoUrl ? (
+              <img src={branding.logoUrl} alt="" />
+            ) : (
+              <Icon name="building" />
+            )}
           </span>
           <div>
             <strong>{branding.name}</strong>
@@ -865,53 +877,11 @@ function App() {
             </div>
           ) : null}
           {tab === "Settings" ? (
-            <section className="panel">
-              <h2>Hotel branding</h2>
-              <form
-                className="form-grid"
-                onSubmit={(e) => {
-                  const value = formValues(e);
-                  void perform(async () => {
-                    await api("/settings", {
-                      method: "PUT",
-                      body: JSON.stringify({ key: "branding", value }),
-                    });
-                    setBranding(await api("/branding"));
-                    setMessage("Branding saved.");
-                  });
-                }}
-              >
-                <div>
-                  <label htmlFor="hotelName">Hotel name</label>
-                  <input
-                    id="hotelName"
-                    name="name"
-                    defaultValue={branding.name}
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="logo">Local logo path</label>
-                  <input
-                    id="logo"
-                    name="logoUrl"
-                    defaultValue={branding.logoUrl}
-                    placeholder="/assets/hotel-logo.png"
-                  />
-                </div>
-                <div className="wide">
-                  <label htmlFor="address">Address</label>
-                  <textarea id="address" name="address" required />
-                </div>
-                <button disabled={!writable || busy || !can("settings.write")}>
-                  Save hotel branding
-                </button>
-              </form>
-              <p>
-                Tax rules, room setup, printer testing and the full onboarding
-                wizard follow with their operational modules.
-              </p>
-            </section>
+            <BrandingSettings
+              canWrite={writable && !busy && can("settings.write")}
+              perform={perform}
+              notify={setMessage}
+            />
           ) : null}
           {tab === "Audit trail" ? (
             <section className="panel table-wrap">

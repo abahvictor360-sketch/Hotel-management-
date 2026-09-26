@@ -31,6 +31,10 @@ import {
   type Fetcher,
   type GatewayClient,
 } from "./gateways.js";
+import {
+  publicBranding,
+  readBranding,
+} from "../../../packages/core/src/branding.js";
 // Public booking website API, served by the cloud. No login: a guest finds a hotel by its
 // public slug. It runs as booking_agent, which can read what a guest may book and write
 // only bookings, payment records and guest messages. Those rows reach the hub by pull.
@@ -53,6 +57,7 @@ type Hotel = {
   symbol: string;
   timezone: string;
   address: string;
+  brand: ReturnType<typeof publicBranding>;
   settings: BookingSettings;
 };
 const q = async (c: Conn, sql: string, params: unknown[] = []) =>
@@ -97,8 +102,9 @@ async function hotelTx<T>(
     const s = readBookingSettings(
       settings.find((x) => x.key === BOOKING_SETTING)?.value,
     );
-    const branding = (settings.find((x) => x.key === "branding")?.value ??
-      {}) as Record<string, string>;
+    const branding = publicBranding(
+      readBranding(settings.find((x) => x.key === "branding")?.value, t.name),
+    );
     const open =
       s.enabled &&
       !!sub &&
@@ -109,11 +115,12 @@ async function hotelTx<T>(
     const result = await fn(conn, {
       id: t.id,
       slug: t.slug,
-      name: branding.name || t.name,
+      name: branding.name,
       currency: t.currency,
       symbol: t.currency_symbol,
       timezone: t.timezone,
-      address: branding.address ?? "",
+      address: branding.address,
+      brand: branding,
       settings: s,
     });
     await conn.query("COMMIT");
@@ -470,8 +477,7 @@ export function bookingRouter(deps: BookingDeps) {
       const slug = slugSchema.parse(req.params.slug);
       res.json(
         await hotelTx(deps.connect, slug, async (c, h) => ({
-          name: h.name,
-          address: h.address,
+          ...h.brand,
           currency: h.currency,
           symbol: h.symbol,
           today: hotelToday(h.timezone, now()),

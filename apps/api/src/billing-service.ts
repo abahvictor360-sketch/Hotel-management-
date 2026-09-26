@@ -5,6 +5,7 @@ import type { Identity } from "./auth.js";
 import { HttpError } from "./http.js";
 import { folioBalance } from "./stay-service.js";
 import { money } from "../../../packages/core/src/stays.js";
+import { readBranding } from "../../../packages/core/src/branding.js";
 export const positiveMoney = money.refine(
   (v) => new Prisma.Decimal(v).gt(0),
   "Amount must be positive.",
@@ -72,6 +73,19 @@ export async function collect(
     );
   return result;
 }
+// Hotel details a receipt keeps. A receipt stores only a file path logo: an uploaded logo
+// lives in the branding setting and is shown from there, so it is not copied into every
+// receipt row.
+export function receiptHotel(b: ReturnType<typeof readBranding>) {
+  return {
+    name: b.name,
+    address: b.address,
+    logoUrl: b.logoUrl.startsWith("/assets/") ? b.logoUrl : "",
+    phone: b.phone,
+    email: b.email,
+    website: b.website,
+  };
+}
 export type ReceiptSnapshot = {
   version: 1;
   kind: "payment" | "refund";
@@ -81,6 +95,9 @@ export type ReceiptSnapshot = {
     name: string;
     address: string;
     logoUrl: string;
+    phone?: string;
+    email?: string;
+    website?: string;
     currency: string;
     symbol: string;
     footer: string;
@@ -113,8 +130,10 @@ export async function receipt(
   const settings = await tx.settings.findMany({
     where: { key: { in: ["branding", "receipt_footer"] }, deleted_at: null },
   });
-  const branding = (settings.find((s) => s.key === "branding")?.value ??
-    tenant.branding) as Record<string, string>;
+  const branding = readBranding(
+    settings.find((s) => s.key === "branding")?.value ?? tenant.branding,
+    tenant.name,
+  );
   const footer = (settings.find((s) => s.key === "receipt_footer")?.value ??
     {}) as Record<string, string>;
   const cashier = await tx.users.findFirstOrThrow({
@@ -180,9 +199,7 @@ export async function receipt(
     number,
     issuedAt: new Date().toISOString(),
     hotel: {
-      name: branding.name || tenant.name,
-      address: branding.address || "",
-      logoUrl: branding.logoUrl || "",
+      ...receiptHotel(branding),
       currency: tenant.currency,
       symbol: tenant.currency_symbol,
       footer: footer.text || "Thank you for visiting.",

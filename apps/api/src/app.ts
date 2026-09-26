@@ -21,6 +21,10 @@ import { reporting } from "./reporting.js";
 import { onlineBookings } from "./online-bookings.js";
 import { BOOKING_SETTING } from "../../../packages/core/src/booking.js";
 import { REMOTE_SETTING } from "./remote-access.js";
+import {
+  brandingSchema,
+  readBranding,
+} from "../../../packages/core/src/branding.js";
 import { DATABASE_REVISION } from "../../../packages/core/src/sync-contract.js";
 export const HUB_VERSION = "0.6.0";
 export const app = express();
@@ -62,10 +66,9 @@ app.get(
           where: { key: "branding", deleted_at: null },
         });
         return {
-          name: t.name,
+          ...readBranding(s?.value ?? t.branding, t.name),
           currency: t.currency,
           symbol: t.currency_symbol,
-          ...((s?.value as object) ?? (t.branding as object)),
         };
       }),
     );
@@ -355,19 +358,7 @@ app.get(
 const settingsSchema = z.discriminatedUnion("key", [
   z.object({
     key: z.literal("branding"),
-    value: z
-      .object({
-        name: z.string().min(1).max(120),
-        address: z.string().max(500),
-        logoUrl: z
-          .string()
-          .max(300)
-          .refine(
-            (v) => v === "" || v.startsWith("/assets/"),
-            "Use a local /assets/ logo path",
-          ),
-      })
-      .strict(),
+    value: brandingSchema,
   }),
   z.object({
     key: z.literal("printer"),

@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 import { Icon } from "./icons";
+import { setBrand, type Brand } from "./brand";
 // Public booking website, served by the cloud at /book/<hotel>. Guests search dates, pick a
 // room type from the hotel's online allotment, book, and pay through the hotel's gateway.
 // Status pages need the booking reference and the guest's email.
@@ -13,9 +14,7 @@ type RoomType = {
   amenities: string[];
   fromRate: string;
 };
-type Hotel = {
-  name: string;
-  address: string;
+type Hotel = Brand & {
   currency: string;
   today: string;
   maxAdvanceDays: number;
@@ -129,6 +128,7 @@ function Book() {
     call<Hotel>("")
       .then((h) => {
         setHotel(h);
+        setBrand(h, { title: `Book your stay · ${h.name}` });
         setSearch((s) => ({
           ...s,
           checkIn: addDays(h.today, 1),
@@ -269,13 +269,23 @@ function Book() {
     <div className="remote book">
       <header className="topbar">
         <div className="crumb">
-          <span className="brand-mark" aria-hidden="true">
-            <Icon name="building" />
+          <span
+            className={`brand-mark${hotel.logoUrl ? " has-logo" : ""}`}
+            aria-hidden="true"
+          >
+            {hotel.logoUrl ? (
+              <img src={hotel.logoUrl} alt="" />
+            ) : (
+              <Icon name="building" />
+            )}
           </span>
           <div>
             <strong>{hotel.name}</strong>
-            {hotel.address ? (
-              <small className="muted"> · {hotel.address}</small>
+            {hotel.tagline || hotel.address ? (
+              <small className="muted">
+                {" "}
+                · {hotel.tagline || hotel.address}
+              </small>
             ) : null}
           </div>
         </div>
@@ -611,6 +621,24 @@ function Book() {
             ) : null}
           </>
         )}
+        {hotel.address || hotel.phone || hotel.email || hotel.website ? (
+          <footer className="book-contact">
+            {hotel.address ? <span>{hotel.address}</span> : null}
+            {hotel.phone ? (
+              <a href={`tel:${hotel.phone.replace(/[^\d+]/g, "")}`}>
+                {hotel.phone}
+              </a>
+            ) : null}
+            {hotel.email ? (
+              <a href={`mailto:${hotel.email}`}>{hotel.email}</a>
+            ) : null}
+            {hotel.website ? (
+              <a href={hotel.website} rel="noopener noreferrer" target="_blank">
+                {hotel.website.replace(/^https?:\/\//, "")}
+              </a>
+            ) : null}
+          </footer>
+        ) : null}
       </main>
     </div>
   );

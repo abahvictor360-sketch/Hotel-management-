@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "./api";
+import { useBrand } from "./brand";
 type Row = Record<string, any>;
 export function uuid() {
   const bytes = crypto.getRandomValues(new Uint8Array(16));
@@ -1215,13 +1216,18 @@ export function ServiceDesk({
   );
 }
 function ReceiptDocument({ data, invoice }: { data: Row; invoice?: boolean }) {
+  // Receipts keep a file path logo only; an uploaded logo is shown from the hotel branding.
+  const brand = useBrand();
+  const logo = data.hotel.logoUrl || brand.logoUrl;
+  const contact = [data.hotel.phone, data.hotel.email, data.hotel.website]
+    .filter(Boolean)
+    .join(" · ");
   return (
     <article className="print-document">
-      {data.hotel.logoUrl && (
-        <img className="logo" src={data.hotel.logoUrl} alt="Hotel logo" />
-      )}
+      {logo && <img className="logo" src={logo} alt="Hotel logo" />}
       <h2>{data.hotel.name}</h2>
       <p>{data.hotel.address}</p>
+      {contact ? <p>{contact}</p> : null}
       <h3>
         {invoice
           ? "Invoice · Not proof of payment"

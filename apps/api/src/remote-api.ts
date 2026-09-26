@@ -18,6 +18,10 @@ import {
   verifyToken,
   type RemoteToken,
 } from "./remote-access.js";
+import {
+  publicBranding,
+  readBranding,
+} from "../../../packages/core/src/branding.js";
 // Read-only management dashboard over the cloud copy. Every request runs as report_reader
 // inside a READ ONLY transaction for the one hotel named in its access token.
 type Connect = () => Promise<{ conn: Conn; release: () => void }>;
@@ -47,6 +51,7 @@ type Access = {
   tenant: string;
   token: RemoteToken;
   hotel: string;
+  brand: ReturnType<typeof publicBranding>;
   dashboard: boolean;
   subscription: string | null;
   lastSyncAt: string | null;
@@ -84,13 +89,20 @@ export function remoteRouter(connect: Connect) {
         const [hotel] = await q(
           "SELECT name FROM tenants WHERE id=public.context_tenant()",
         );
+        const [brandRow] = await q(
+          "SELECT value FROM settings WHERE key='branding' AND deleted_at IS NULL LIMIT 1",
+        );
+        const brand = publicBranding(
+          readBranding(brandRow?.value, (hotel?.name as string) ?? "Hotel"),
+        );
         const [beat] = await q(
           "SELECT max(last_sync_at) AS at FROM hub_heartbeats",
         );
         return {
           tenant: parsed.tenant,
           token,
-          hotel: (hotel?.name as string) ?? "Hotel",
+          hotel: brand.name,
+          brand,
           subscription: (sub?.status as string) ?? null,
           dashboard:
             !!sub &&
@@ -133,6 +145,7 @@ export function remoteRouter(connect: Connect) {
       const a = seen.get(req)!;
       res.json({
         hotel: a.hotel,
+        brand: a.brand,
         label: a.token.label,
         scopes: a.token.scopes,
         expiresAt: a.token.expiresAt,

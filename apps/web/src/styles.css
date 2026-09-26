@@ -1418,3 +1418,129 @@ a.link-button {
   color: var(--error);
   flex-basis: 100%;
 }
+/* Hotel branding: logo in place of the default mark, and the customisation screen */
+.brand-mark.has-logo {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: auto;
+  min-width: 32px;
+  max-width: 96px;
+  height: 36px;
+  padding: 3px 6px;
+  overflow: hidden;
+}
+.brand-mark.has-logo img,
+.crumb-logo {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+.crumb-logo {
+  height: 28px;
+  max-width: 96px;
+}
+.brand-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.brand-preview strong {
+  display: block;
+  font-size: 16px;
+}
+.brand-preview small {
+  color: var(--muted);
+}
+.brand-preview-logo {
+  height: 52px;
+  min-width: 52px;
+  max-width: 160px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 6px;
+}
+.brand-preview-logo img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+.brand-preview-logo span {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-text);
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  font-size: 18px;
+}
+.brand-preview-actions {
+  margin-left: auto;
+  pointer-events: none;
+}
+.logo-drop {
+  margin-top: 12px;
+  height: 120px;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  padding: 12px;
+}
+.logo-drop img {
+  max-height: 96px;
+  max-width: 100%;
+  object-fit: contain;
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 16px;
+}
+button.swatch {
+  width: 36px;
+  height: 36px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border);
+}
+button.swatch[aria-checked="true"] {
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--text);
+}
+.colour-row input[type="color"] {
+  width: 48px;
+  height: 40px;
+  padding: 2px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.colour-row input:not([type="color"]) {
+  width: 110px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.book-contact {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.book-contact a {
+  color: var(--muted);
+}

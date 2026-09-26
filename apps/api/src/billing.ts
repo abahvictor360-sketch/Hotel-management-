@@ -17,9 +17,11 @@ import {
   tender,
   dec,
   sum,
+  receiptHotel,
   type ReceiptSnapshot,
 } from "./billing-service.js";
 import { getLicense } from "./licensing.js";
+import { readBranding } from "../../../packages/core/src/branding.js";
 export const billing = Router();
 const uuid = z.string().uuid(),
   requestFields = { requestId: uuid },
@@ -835,8 +837,10 @@ billing.get(
           settings = await tx.settings.findMany({
             where: { key: { in: ["branding", "receipt_footer"] } },
           });
-        const branding = (settings.find((s) => s.key === "branding")?.value ??
-          hotel.branding) as Record<string, string>;
+        const branding = readBranding(
+          settings.find((s) => s.key === "branding")?.value ?? hotel.branding,
+          hotel.name,
+        );
         const footer = settings.find((s) => s.key === "receipt_footer")
           ?.value as { text?: string } | undefined;
         const lines = (
@@ -858,9 +862,7 @@ billing.get(
           number: `FOLIO-${id}`,
           issuedAt: new Date().toISOString(),
           hotel: {
-            name: branding.name || hotel.name,
-            address: branding.address || "",
-            logoUrl: branding.logoUrl || "",
+            ...receiptHotel(branding),
             currency: hotel.currency,
             symbol: hotel.currency_symbol,
             footer: footer?.text || "",
