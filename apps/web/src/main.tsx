@@ -32,6 +32,25 @@ const savedTheme = (() => {
   }
 })();
 applyTheme(savedTheme);
+// Enrolment link: an administrator opens /?device=<registered device ID> once on a
+// terminal, and that browser remembers which device it is.
+(() => {
+  const params = new URLSearchParams(location.search);
+  const device = params.get("device");
+  if (!device || !/^[0-9a-f-]{36}$/i.test(device)) return;
+  try {
+    localStorage.setItem("hotel-device-id", device);
+  } catch {
+    /* storage blocked: the device ID can still be typed at sign-in */
+  }
+  params.delete("device");
+  const query = params.toString();
+  history.replaceState(
+    null,
+    "",
+    location.pathname + (query ? `?${query}` : ""),
+  );
+})();
 type Identity = {
   userId: string;
   permissions: string[];
@@ -365,8 +384,10 @@ function App() {
     "Cloud sync": "What has reached the cloud, and what is still waiting.",
     "Audit trail": "Every change, who made it and from which device.",
     Reports: "Revenue, payments, occupancy and balances, from this hub.",
-    "Online bookings": "Requests from your booking website. Confirm each into a room.",
-    "Data export": "Take all hotel records away, and share reports with owners.",
+    "Online bookings":
+      "Requests from your booking website. Confirm each into a room.",
+    "Data export":
+      "Take all hotel records away, and share reports with owners.",
   };
   return (
     <div className="shell">
@@ -427,7 +448,9 @@ function App() {
               }}
             >
               <Icon
-                name={!reachable || sync.tone === "warn" ? "cloud-off" : "cloud"}
+                name={
+                  !reachable || sync.tone === "warn" ? "cloud-off" : "cloud"
+                }
               />
               {!reachable ? "Hub unreachable" : sync.text}
             </button>
@@ -439,7 +462,11 @@ function App() {
             >
               <Icon
                 name={
-                  theme === "dark" ? "moon" : theme === "light" ? "sun" : "contrast"
+                  theme === "dark"
+                    ? "moon"
+                    : theme === "light"
+                      ? "sun"
+                      : "contrast"
                 }
               />
             </button>
@@ -467,8 +494,7 @@ function App() {
             <div>
               {tab === "Overview" ? (
                 <h1>
-                  {greeting()},{" "}
-                  <span className="soft">{who.roleName}</span>
+                  {greeting()}, <span className="soft">{who.roleName}</span>
                 </h1>
               ) : (
                 <h1>{tab}</h1>

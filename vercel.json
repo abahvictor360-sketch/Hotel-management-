@@ -4,6 +4,7 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "deploy/vercel/public",
+  "regions": ["dub1"],
   "functions": {
     "api/index.mjs": {
       "includeFiles": "apps/{web,provider}/dist/**",
