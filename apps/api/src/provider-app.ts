@@ -355,6 +355,51 @@ providerApp.post(
     res.status(201).json({ licenseKey: key });
   }),
 );
+// Sales enquiries from the website's contact form.
+const leadStatus = z.enum(["new", "contacted", "won", "lost"]);
+providerApp.get(
+  "/api/provider/leads",
+  route(async (req, res) => {
+    const status = leadStatus.optional().parse(req.query.status || undefined);
+    const [rows, counts] = await Promise.all([
+      providerDb.sales_leads.findMany({
+        where: status ? { status } : {},
+        orderBy: { created_at: "desc" },
+        take: 200,
+      }),
+      providerDb.sales_leads.groupBy({ by: ["status"], _count: true }),
+    ]);
+    res.json({
+      leads: rows,
+      counts: Object.fromEntries(counts.map((c) => [c.status, c._count])),
+    });
+  }),
+);
+providerApp.patch(
+  "/api/provider/leads/:id",
+  route(async (req, res) => {
+    const id = z.string().uuid().parse(req.params.id);
+    const body = z
+      .object({
+        status: leadStatus.optional(),
+        notes: z.string().trim().max(3000).optional(),
+      })
+      .strict()
+      .refine((b) => b.status || b.notes !== undefined, "Nothing to change.")
+      .parse(req.body);
+    const found = await providerDb.sales_leads.findUnique({ where: { id } });
+    if (!found) throw new HttpError(404, "Enquiry not found.");
+    res.json(
+      await providerDb.sales_leads.update({
+        where: { id },
+        data: {
+          ...(body.status ? { status: body.status } : {}),
+          ...(body.notes !== undefined ? { notes: body.notes || null } : {}),
+        },
+      }),
+    );
+  }),
+);
 providerApp.use("/api", (_req, res) =>
   res.status(404).json({ error: "Not found." }),
 );

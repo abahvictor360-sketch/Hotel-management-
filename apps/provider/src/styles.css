@@ -337,3 +337,115 @@ a {
     padding: 25px;
   }
 }
+/* Enquiries */
+nav .badge {
+  display: inline-block;
+  margin-left: 8px;
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #d9480f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+.lead-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+.lead-filters button {
+  margin: 0;
+}
+.leads {
+  display: grid;
+  gap: 14px;
+}
+.lead {
+  border-left: 4px solid transparent;
+}
+.lead-new {
+  border-left-color: #d9480f;
+}
+.lead-won {
+  border-left-color: #1b8a4f;
+}
+.lead-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.lead-head h2 {
+  margin: 0 0 4px;
+}
+.lead-meta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+.pill {
+  display: inline-block;
+  align-self: start;
+  line-height: 1.5;
+  text-transform: capitalize;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eef0ee;
+}
+.pill-new {
+  background: #fde8dc;
+  color: #a33a0a;
+}
+.pill-contacted {
+  background: #e3f1f9;
+  color: #0b5a80;
+}
+.pill-won {
+  background: #dff3e7;
+  color: #146c3d;
+}
+.pill-lost {
+  color: #6b726d;
+}
+.lead-message {
+  white-space: pre-wrap;
+  margin: 14px 0;
+  line-height: 1.6;
+}
+.lead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.lead-actions select {
+  width: auto;
+  margin: 0 0 0 auto;
+}
+a.button {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #1b8a4f;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+a.button.secondary {
+  background: transparent;
+  color: inherit;
+  border: 1px solid #d8dcd8;
+}
+.lead-notes {
+  margin-top: 14px;
+}
+.lead-notes textarea {
+  min-height: 70px;
+}

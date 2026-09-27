@@ -17,6 +17,7 @@ test("real PostgreSQL engine: tenant isolation, FK boundaries, append-only finan
       "202609250006_reports",
       "202609250007_booking",
       "202609250008_hardening",
+      "202609250009_leads",
     ])
       await db.exec(
         readFileSync(

@@ -710,29 +710,131 @@
 
       <!-- Final CTA -->
       <section class="cta" id="contact">
-        <div class="wrap cta-inner">
-          <h2>See Hotel Hub running your hotel</h2>
-          <p>
-            Get a guided walkthrough of the live demo hotel, and a setup plan
-            for your property.
-          </p>
-          <div class="hero-actions center">
-            <a
-              class="btn btn-light"
-              id="contact-link"
-              href="mailto:abahvictor760@gmail.com?subject=Hotel%20Hub%20demo%20request&amp;body=Hotel%20name%3A%0ANumber%20of%20rooms%3A%0ACity%3A%0ABest%20time%20to%20call%3A"
-              >Request a demo</a
-            >
-            <a
-              class="btn btn-outline-light"
-              href="mailto:abahvictor760@gmail.com?subject=Hotel%20Hub%20question"
-              >Ask a question</a
-            >
+        <div class="wrap cta-grid">
+          <div class="cta-copy">
+            <p class="eyebrow light">Get in touch</p>
+            <h2>See Hotel Hub running your hotel</h2>
+            <p>
+              Tell us a little about your property. We will walk you through the
+              live demo hotel and put together a setup plan for your rooms,
+              departments and devices.
+            </p>
+            <ul class="cta-points">
+              <li>A guided demo, on a call or in person</li>
+              <li>Pricing for your number of rooms</li>
+              <li>Help moving your rooms, menus and guests across</li>
+            </ul>
           </div>
-          <p class="cta-note">
-            Tell us your hotel name, room count and city, and we will set up a
-            walkthrough.
-          </p>
+          <form class="contact" id="contact-form" novalidate>
+            <div class="contact-done" id="contact-done" hidden tabindex="-1">
+              <span class="done-mark" aria-hidden="true">✓</span>
+              <h3>Thank you. Your message is on its way.</h3>
+              <p>
+                We will get back to you by email or phone to arrange your demo.
+              </p>
+              <button type="button" class="btn btn-ghost" id="contact-again">
+                Send another message
+              </button>
+            </div>
+            <div class="contact-fields" id="contact-fields">
+              <div class="field-row">
+                <label>
+                  <span>Your name *</span>
+                  <input
+                    name="name"
+                    autocomplete="name"
+                    required
+                    minlength="2"
+                    maxlength="120"
+                  />
+                </label>
+                <label>
+                  <span>Hotel name *</span>
+                  <input
+                    name="hotelName"
+                    autocomplete="organization"
+                    required
+                    minlength="2"
+                    maxlength="150"
+                  />
+                </label>
+              </div>
+              <div class="field-row">
+                <label>
+                  <span>Email *</span>
+                  <input
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    maxlength="254"
+                  />
+                </label>
+                <label>
+                  <span>Phone or WhatsApp</span>
+                  <input
+                    name="phone"
+                    type="tel"
+                    autocomplete="tel"
+                    maxlength="40"
+                    placeholder="+234"
+                  />
+                </label>
+              </div>
+              <div class="field-row three">
+                <label>
+                  <span>City</span>
+                  <input
+                    name="city"
+                    autocomplete="address-level2"
+                    maxlength="100"
+                  />
+                </label>
+                <label>
+                  <span>Rooms</span>
+                  <input
+                    name="rooms"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="5000"
+                  />
+                </label>
+                <label>
+                  <span>Interested in</span>
+                  <select name="plan">
+                    <option value="unsure">Not sure yet</option>
+                    <option value="standard">Standard</option>
+                    <option value="premium">Premium</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                <span>How can we help? *</span>
+                <textarea
+                  name="message"
+                  required
+                  minlength="10"
+                  maxlength="3000"
+                  rows="4"
+                  placeholder="What would you like Hotel Hub to handle for you?"
+                ></textarea>
+              </label>
+              <!-- Left empty by people; filled in by spam robots. -->
+              <label class="trap" aria-hidden="true">
+                Website
+                <input name="website" tabindex="-1" autocomplete="off" />
+              </label>
+              <p class="form-error" id="contact-error" role="alert" hidden></p>
+              <button class="btn contact-submit" id="contact-submit">
+                Request my demo
+              </button>
+              <p class="form-note">
+                We use your details only to reply to this enquiry.
+              </p>
+            </div>
+          </form>
         </div>
       </section>
     </main>

@@ -14,6 +14,7 @@ import {
   pullTables,
 } from "../../../packages/core/src/sync-contract.js";
 import { applyEvent, tenantTx, type Conn } from "./sync-apply.js";
+import { leadsRouter } from "./leads.js";
 import { remoteRouter } from "./remote-api.js";
 import {
   bookingRouter,
@@ -230,7 +231,10 @@ export function createCloudApp(
     }),
   );
   if (options.reports) app.use("/api/remote", remoteRouter(options.reports));
-  if (options.booking) app.use("/api/public", bookingRouter(options.booking));
+  if (options.booking) {
+    app.use("/api/public/contact", leadsRouter(options.booking.connect));
+    app.use("/api/public", bookingRouter(options.booking));
+  }
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found." }));
   if ((options.reports || options.booking) && options.dashboardDir) {
     const dir = options.dashboardDir;

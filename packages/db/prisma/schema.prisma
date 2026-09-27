@@ -1018,3 +1018,20 @@ model print_jobs {
  @@index([tenant_id,created_by],map:"print_jobs_creator")
  @@index([tenant_id,receipt_id],map:"print_jobs_receipt")
 }
+
+model sales_leads {
+ id String @db.Uuid @id
+ created_at DateTime @db.Timestamptz(6) @default(now())
+ updated_at DateTime @db.Timestamptz(6) @default(now())
+ name String @db.Text
+ email String @db.Text
+ phone String? @db.Text
+ hotel_name String @db.Text
+ city String? @db.Text
+ rooms Int?
+ plan String? @db.Text
+ message String @db.Text
+ status String @db.Text @default("new")
+ notes String? @db.Text
+ @@index([status, created_at(sort: Desc)], map: "sales_leads_status_created_idx")
+}
