@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#123d2c" />
+    <title>Hotel Hub · Hotel management that keeps working offline</title>
+    <meta
+      name="description"
+      content="Front desk, billing, restaurant and bar, housekeeping, reports, online booking and an owner dashboard. Hotel Hub runs on your hotel's own network and keeps working when the internet drops."
+    />
+    <meta
+      property="og:title"
+      content="Hotel Hub · Run your whole hotel, even offline"
+    />
+    <meta
+      property="og:description"
+      content="Offline-first hotel management with online booking, payments, reports and an owner dashboard."
+    />
+    <meta property="og:image" content="/landing/overview.webp" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap"
+    />
+    <link rel="stylesheet" href="/src/landing.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="nav" id="top">
+      <div class="wrap nav-inner">
+        <a class="logo" href="#top" aria-label="Hotel Hub home">
+          <span class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M14 9h5a1 1 0 0 1 1 1v11M2 21h20M8 8h2M8 12h2M8 16h2M17 13h0M17 17h0"
+              />
+            </svg>
+          </span>
+          Hotel Hub
+        </a>
+        <nav class="nav-links" id="nav-links" aria-label="Main">
+          <a href="#features">Features</a>
+          <a href="#offline">How it works</a>
+          <a href="#security">Security</a>
+          <a href="#plans">Plans</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <div class="nav-cta">
+          <a class="btn btn-small" href="#contact">Request a demo</a>
+          <button
+            class="menu"
+            id="menu"
+            aria-expanded="false"
+            aria-controls="nav-links"
+            aria-label="Open menu"
+          >
+            <span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="kicker">
+              <span class="pulse" aria-hidden="true"></span> Offline-first hotel
+              software
+            </p>
+            <h1>
+              Run your whole hotel, <em>even when the internet goes down.</em>
+            </h1>
+            <p class="lede">
+              Hotel Hub puts the front desk, billing, restaurant and bar,
+              housekeeping and reports on a server inside your hotel. Staff keep
+              working through every outage. The moment the connection returns,
+              everything syncs to the cloud for your online booking site and
+              owner dashboard.
+            </p>
+            <div class="hero-actions">
+              <a class="btn" href="#contact">Book a live demo</a>
+              <a class="btn btn-ghost" href="#features">Explore features</a>
+            </div>
+            <ul class="hero-points">
+              <li>No lost bookings when the network drops</li>
+              <li>Your logo and colours throughout</li>
+              <li>Live in an afternoon with the setup guide</li>
+            </ul>
+          </div>
+          <figure class="hero-shot">
+            <div class="frame">
+              <div class="frame-bar" aria-hidden="true">
+                <i></i><i></i><i></i><span>Palm Inn Lagos · Hotel Hub</span>
+              </div>
+              <picture>
+                <source
+                  srcset="/landing/overview-dark.webp"
+                  media="(prefers-color-scheme: dark)"
+                />
+                <img
+                  src="/landing/overview.webp"
+                  width="1600"
+                  height="1000"
+                  alt="Hotel Hub overview: rooms, staff, devices and cloud sync status for Palm Inn Lagos"
+                  fetchpriority="high"
+                />
+              </picture>
+            </div>
+            <div class="float float-a" aria-hidden="true">
+              <b>● Online and synced</b><span>0 records waiting</span>
+            </div>
+            <div class="float float-b" aria-hidden="true">
+              <b>Internet down?</b><span>Front desk keeps working</span>
+            </div>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Proof strip -->
+      <section class="strip" aria-label="Highlights">
+        <div class="wrap strip-grid">
+          <div><strong>12</strong><span>modules in one system</span></div>
+          <div>
+            <strong>8-step</strong><span>guided setup for new hotels</span>
+          </div>
+          <div>
+            <strong>2</strong
+            ><span>payment gateways: Paystack &amp; Flutterwave</span>
+          </div>
+          <div>
+            <strong>Every</strong
+            ><span>change recorded in the audit trail</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Problem / promise -->
+      <section class="section" id="why">
+        <div class="wrap two-col">
+          <div>
+            <p class="eyebrow">Why Hotel Hub</p>
+            <h2>
+              Cloud-only software stops when the internet does. Your hotel
+              shouldn't.
+            </h2>
+          </div>
+          <div class="why-list">
+            <div class="why">
+              <h3>The usual problem</h3>
+              <p>
+                A fibre cut or a power-hungry router, and a web-only system
+                freezes: no check-ins, no bills, guests waiting at reception,
+                and handwritten notes to re-enter later.
+              </p>
+            </div>
+            <div class="why good">
+              <h3>The Hotel Hub way</h3>
+              <p>
+                Every screen talks to the hub on your own network, so it answers
+                instantly and keeps working offline. Changes queue safely and
+                upload the moment the internet is back.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feature grid -->
+      <section class="section alt" id="features">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow">Everything in one place</p>
+            <h2>One system for every department</h2>
+            <p class="sub">
+              From the first reservation to the owner's monthly report, without
+              juggling spreadsheets and separate apps.
+            </p>
+          </div>
+          <div class="features">
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M3 7v13M3 16h18M21 20v-7a3 3 0 0 0-3-3h-8v6M7 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4"
+                  /></svg
+              ></span>
+              <h3>Front desk</h3>
+              <p>
+                Room calendar, reservations, walk-ins, check-in and check-out,
+                extensions and guest profiles, with double-booking blocked by
+                the database itself.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M5 3v18l2.5-1.5L10 21l2-1.5 2 1.5 2.5-1.5L19 21V3zM9 8h6M9 12h6M9 16h3"
+                  /></svg
+              ></span>
+              <h3>Billing &amp; receipts</h3>
+              <p>
+                Guest folios, split payments, refunds and reversals, VAT and
+                service charge, cashier shifts, and receipts on thermal printers
+                or screen.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M6 3v8a2 2 0 0 0 4 0V3M8 3v18M17 3c-1.7 0-3 2-3 5s1.3 4 3 4v9"
+                  /></svg
+              ></span>
+              <h3>Restaurant, bar &amp; laundry</h3>
+              <p>
+                Department menus, orders charged straight to a room or paid on
+                the spot, with each department seeing only its own orders.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"
+                  /></svg
+              ></span>
+              <h3>Housekeeping</h3>
+              <p>
+                Cleaning tasks and room status that update the front desk the
+                moment a room is ready.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"
+                  /></svg
+              ></span>
+              <h3>Inventory</h3>
+              <p>
+                Stock that goes down automatically as items are sold, with every
+                adjustment recorded.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path d="M3 3v18h18M7 16v1M11 11v6M15 7v10M19 12v5" /></svg
+              ></span>
+              <h3>Reports</h3>
+              <p>
+                Revenue, payments, occupancy and outstanding balances by date
+                range, exported as PDF or CSV.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"
+                  /></svg
+              ></span>
+              <h3>Online booking</h3>
+              <p>
+                Your own booking page with live availability. Guests can pay
+                online through Paystack or Flutterwave, or pay at the hotel.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M4 5h16v11H4zM9 20h6M12 16v4M8 12l2.5-3 2 2L16 8"
+                  /></svg
+              ></span>
+              <h3>Owner dashboard</h3>
+              <p>
+                Owners and managers open live reports from anywhere with a
+                secure link, and never need a staff password.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 22a10 10 0 1 1 10-10c0 2-1.5 3-3 3h-2a2 2 0 0 0-1.4 3.4A2 2 0 0 1 12 22M7.5 11h0M10 7h0M14.5 7h0M17 11h0"
+                  /></svg
+              ></span>
+              <h3>Your brand everywhere</h3>
+              <p>
+                Upload your logo and pick your colour. It appears on the staff
+                app, receipts, the booking site and the owner dashboard.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path d="M5 21V4M5 4h12l-2.5 4L17 12H5" /></svg
+              ></span>
+              <h3>Setup guide</h3>
+              <p>
+                Eight guided steps take a new hotel from nothing to its first
+                guest: profile, rooms, rates, taxes, staff and devices.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path d="M12 16V4M7 9l5-5 5 5M4 20h16" /></svg
+              ></span>
+              <h3>Spreadsheet import</h3>
+              <p>
+                Bring in rooms, menus and guest lists from Excel or CSV. Every
+                row is checked before anything is saved.
+              </p>
+            </article>
+            <article class="feature">
+              <span class="ficon" aria-hidden="true"
+                ><svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10M9 12l2 2 4-4"
+                  /></svg
+              ></span>
+              <h3>Roles &amp; audit trail</h3>
+              <p>
+                Receptionist, restaurant, bar, housekeeping, accountant and
+                manager roles, and a record of who changed what, when and from
+                which device.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Offline architecture -->
+      <section class="section" id="offline">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow">How it works</p>
+            <h2>Local first. Cloud when it helps.</h2>
+            <p class="sub">
+              A small server at your hotel does the daily work. The cloud
+              handles what needs the internet: online bookings, payments and
+              reports for owners who are away.
+            </p>
+          </div>
+          <div
+            class="arch"
+            role="img"
+            aria-label="Diagram: devices at the hotel connect to the hotel hub over the local network; the hub syncs with the cloud, which serves the booking website and the owner dashboard."
+          >
+            <div class="arch-zone">
+              <span class="zone-label">At your hotel · local network</span>
+              <div class="arch-row">
+                <div class="node">Reception PC</div>
+                <div class="node">Restaurant tablet</div>
+                <div class="node">Bar &amp; laundry</div>
+                <div class="node">Manager laptop</div>
+              </div>
+              <div class="arch-link" aria-hidden="true">
+                ↓ instant, no internet needed
+              </div>
+              <div class="node node-main">
+                Hotel Hub server<small
+                  >database · receipts printer · offline licence</small
+                >
+              </div>
+            </div>
+            <div class="arch-bridge" aria-hidden="true">
+              <span>⇅</span>
+              <small
+                >syncs every 30 seconds when online<br />queues safely when
+                offline</small
+              >
+            </div>
+            <div class="arch-zone cloud">
+              <span class="zone-label">In the cloud</span>
+              <div class="node node-main">
+                Hotel Hub Cloud<small
+                  >encrypted copy · payments · guest messages</small
+                >
+              </div>
+              <div class="arch-link" aria-hidden="true">↓</div>
+              <div class="arch-row">
+                <div class="node">Booking website</div>
+                <div class="node">Owner dashboard</div>
+                <div class="node">Paystack · Flutterwave</div>
+              </div>
+            </div>
+          </div>
+          <ol class="steps">
+            <li>
+              <b>Install the hub</b>
+              <span
+                >A small PC or server on your network, on Windows or Ubuntu.
+                Every other device just opens a browser.</span
+              >
+            </li>
+            <li>
+              <b>Follow the setup guide</b>
+              <span
+                >Add your brand, room types, rooms, taxes, staff and devices, or
+                import them from a spreadsheet.</span
+              >
+            </li>
+            <li>
+              <b>Welcome your first guest</b>
+              <span
+                >Take bookings at the desk and online. Owners watch the numbers
+                from anywhere.</span
+              >
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Showcase -->
+      <section class="section alt" id="tour">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow">Take a look</p>
+            <h2>Built for busy front desks</h2>
+          </div>
+          <div class="tour">
+            <div class="tour-tabs" role="tablist" aria-label="Product screens">
+              <button
+                role="tab"
+                aria-selected="true"
+                aria-controls="tour-panel"
+                data-shot="frontdesk"
+                data-caption="The room calendar shows every stay at a glance. Departure days free up for the next arrival automatically."
+              >
+                Front desk
+              </button>
+              <button
+                role="tab"
+                aria-selected="false"
+                aria-controls="tour-panel"
+                data-shot="setup"
+                data-caption="The setup guide works from your real data: add rooms in ranges like 201-210 and watch each step tick off."
+              >
+                Setup guide
+              </button>
+              <button
+                role="tab"
+                aria-selected="false"
+                aria-controls="tour-panel"
+                data-shot="branding"
+                data-caption="Choose your brand colour and see it everywhere instantly. Text stays readable in light and dark mode."
+              >
+                Branding
+              </button>
+              <button
+                role="tab"
+                aria-selected="false"
+                aria-controls="tour-panel"
+                data-shot="import"
+                data-caption="Upload a spreadsheet and see exactly which rows need fixing, by row number, before anything is saved."
+              >
+                Spreadsheet import
+              </button>
+            </div>
+            <figure class="tour-panel" id="tour-panel" role="tabpanel">
+              <div class="frame">
+                <div class="frame-bar" aria-hidden="true">
+                  <i></i><i></i><i></i><span>Hotel Hub</span>
+                </div>
+                <img
+                  id="tour-img"
+                  src="/landing/frontdesk.webp"
+                  width="1600"
+                  height="1000"
+                  loading="lazy"
+                  alt="Hotel Hub front desk room calendar with confirmed stays"
+                />
+              </div>
+              <figcaption id="tour-caption">
+                The room calendar shows every stay at a glance. Departure days
+                free up for the next arrival automatically.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- Brand & onboarding deep dives -->
+      <section class="section" id="brand">
+        <div class="wrap split">
+          <div class="split-copy">
+            <p class="eyebrow">Your hotel, your look</p>
+            <h2>It looks like your software, not ours</h2>
+            <p>
+              Upload a logo and pick a colour, from eight presets or your exact
+              brand shade. Hotel Hub re-colours every button and highlight, and
+              adjusts the shade only as far as needed to keep text readable in
+              light and dark mode.
+            </p>
+            <ul class="ticks">
+              <li>
+                Logo on the sign-in screen, sidebar, receipts and booking site
+              </li>
+              <li>
+                Tagline, address, phone, email and website shown to guests
+              </li>
+              <li>Your own receipt message</li>
+            </ul>
+          </div>
+          <div class="frame split-shot">
+            <div class="frame-bar" aria-hidden="true">
+              <i></i><i></i><i></i><span>Settings</span>
+            </div>
+            <img
+              src="/landing/branding.webp"
+              width="1600"
+              height="1000"
+              loading="lazy"
+              alt="Branding settings with a terracotta brand colour applied to the whole app"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- Security -->
+      <section class="section dark" id="security">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow">Security &amp; reliability</p>
+            <h2>Serious about your guests' data</h2>
+            <p class="sub">
+              Security is built into the database itself, not bolted on
+              afterwards.
+            </p>
+          </div>
+          <div class="sec-grid">
+            <div class="sec">
+              <h3>Isolated at the database</h3>
+              <p>
+                Row-level security keeps every hotel's records separate, so one
+                hotel can never see another's data, even through a bug.
+              </p>
+            </div>
+            <div class="sec">
+              <h3>Nothing disappears</h3>
+              <p>
+                Financial records can't be edited or deleted, only reversed, and
+                every change lands in an audit trail with the person and device.
+              </p>
+            </div>
+            <div class="sec">
+              <h3>Encrypted payment keys</h3>
+              <p>
+                Gateway secret keys are sealed on the hub so only the payment
+                service can open them. Staff never see them.
+              </p>
+            </div>
+            <div class="sec">
+              <h3>Least privilege everywhere</h3>
+              <p>
+                Each staff role sees only what it needs. Each part of the system
+                connects with its own restricted database account.
+              </p>
+            </div>
+            <div class="sec">
+              <h3>Registered devices only</h3>
+              <p>
+                Only enrolled terminals can sign in. Lose a tablet? Revoke it
+                from the Devices page in seconds.
+              </p>
+            </div>
+            <div class="sec">
+              <h3>Your data stays yours</h3>
+              <p>
+                Export every record at any time as a complete archive, and back
+                up the hub to your own drive.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Plans -->
+      <section class="section" id="plans">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow">Plans</p>
+            <h2>Start simple. Grow when you're ready.</h2>
+            <p class="sub">
+              Every plan includes the full front desk, billing, departments,
+              housekeeping, inventory, reports, branding and setup guide.
+            </p>
+          </div>
+          <div class="plans">
+            <article class="plan">
+              <h3>Standard</h3>
+              <p class="plan-for">For guest houses and small hotels</p>
+              <ul class="ticks">
+                <li>Up to 50 rooms</li>
+                <li>Up to 8 registered devices</li>
+                <li>All hotel operations, offline-first</li>
+                <li>Cloud backup copy and data export</li>
+                <li>Spreadsheet import and setup guide</li>
+              </ul>
+              <a class="btn btn-ghost" href="#contact">Ask for pricing</a>
+            </article>
+            <article class="plan featured">
+              <span class="badge">Most popular</span>
+              <h3>Premium</h3>
+              <p class="plan-for">For growing hotels and groups</p>
+              <ul class="ticks">
+                <li>Up to 200 rooms</li>
+                <li>Up to 25 registered devices</li>
+                <li>Online booking website</li>
+                <li>Paystack and Flutterwave payments</li>
+                <li>Owner dashboard from anywhere</li>
+                <li>No "Powered by" credit on your screens</li>
+              </ul>
+              <a class="btn" href="#contact">Ask for pricing</a>
+            </article>
+            <article class="plan">
+              <h3>Custom</h3>
+              <p class="plan-for">Resorts, chains and special needs</p>
+              <ul class="ticks">
+                <li>More rooms and devices</li>
+                <li>Multiple properties</li>
+                <li>Custom features and integrations</li>
+                <li>On-site installation and training</li>
+              </ul>
+              <a class="btn btn-ghost" href="#contact">Talk to us</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="section alt" id="faq">
+        <div class="wrap faq-wrap">
+          <div class="section-head left">
+            <p class="eyebrow">FAQ</p>
+            <h2>Questions hotels ask</h2>
+          </div>
+          <div class="faq">
+            <details>
+              <summary>What happens when the internet goes down?</summary>
+              <p>
+                Nothing changes for your staff. Check-ins, bills, orders and
+                receipts all keep working on the hotel network. Changes wait in
+                a queue and upload automatically when the connection returns.
+                Only online bookings and the owner dashboard need the internet.
+              </p>
+            </details>
+            <details>
+              <summary>What equipment do we need?</summary>
+              <p>
+                One small computer to act as the hub, on Windows or Ubuntu,
+                connected to your hotel network. Reception, restaurant and other
+                staff use any browser on a PC, laptop or tablet. Thermal receipt
+                printers on the network, USB or serial are supported.
+              </p>
+            </details>
+            <details>
+              <summary>Can we move our existing data across?</summary>
+              <p>
+                Yes. Import rooms and room types, menu items and your guest list
+                from Excel or CSV. The hub checks the whole file first and lists
+                any problems by row, so nothing half-imports.
+              </p>
+            </details>
+            <details>
+              <summary>How do owners check on the hotel remotely?</summary>
+              <p>
+                An administrator creates a secure, expiring access link for the
+                owner dashboard. It shows revenue, payments, occupancy and
+                balances from the cloud copy, read-only, without sharing any
+                staff password.
+              </p>
+            </details>
+            <details>
+              <summary>How do online payments work?</summary>
+              <p>
+                Guests book on your own booking page and can pay through
+                Paystack or Flutterwave into your own account. You choose
+                whether payment is required, optional or taken at the hotel.
+              </p>
+            </details>
+            <details>
+              <summary>Is our data safe if a device is stolen?</summary>
+              <p>
+                Only registered devices can sign in. An administrator can revoke
+                a device or deactivate a staff account at any time, and every
+                action is recorded in the audit trail.
+              </p>
+            </details>
+            <details>
+              <summary>Can you customise it for our hotel?</summary>
+              <p>
+                Yes. Beyond branding and settings, custom features, reports and
+                integrations are available. Tell us what you need.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="cta" id="contact">
+        <div class="wrap cta-inner">
+          <h2>See Hotel Hub running your hotel</h2>
+          <p>
+            Get a guided walkthrough of the live demo hotel, and a setup plan
+            for your property.
+          </p>
+          <div class="hero-actions center">
+            <a
+              class="btn btn-light"
+              id="contact-link"
+              href="mailto:abahvictor760@gmail.com?subject=Hotel%20Hub%20demo%20request&amp;body=Hotel%20name%3A%0ANumber%20of%20rooms%3A%0ACity%3A%0ABest%20time%20to%20call%3A"
+              >Request a demo</a
+            >
+            <a
+              class="btn btn-outline-light"
+              href="mailto:abahvictor760@gmail.com?subject=Hotel%20Hub%20question"
+              >Ask a question</a
+            >
+          </div>
+          <p class="cta-note">
+            Tell us your hotel name, room count and city, and we will set up a
+            walkthrough.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <a class="logo" href="#top">
+          <span class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M14 9h5a1 1 0 0 1 1 1v11M2 21h20M8 8h2M8 12h2M8 16h2"
+              />
+            </svg>
+          </span>
+          Hotel Hub
+        </a>
+        <nav aria-label="Footer">
+          <a href="#features">Features</a>
+          <a href="#security">Security</a>
+          <a href="#plans">Plans</a>
+          <a href="#faq">FAQ</a>
+          <a href="/dashboard">Owner dashboard</a>
+        </nav>
+        <p>
+          © <span id="year">2026</span> Hotel Hub. Offline-first hotel
+          management.
+        </p>
+      </div>
+    </footer>
+    <script type="module" src="/src/landing.ts"></script>
+  </body>
+</html>

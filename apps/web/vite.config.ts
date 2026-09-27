@@ -36,6 +36,7 @@ export default defineConfig({
         main: "index.html",
         dashboard: "dashboard.html",
         book: "book.html",
+        landing: "landing.html",
       },
     },
   },

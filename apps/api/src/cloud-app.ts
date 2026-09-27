@@ -236,11 +236,16 @@ export function createCloudApp(
     const dir = options.dashboardDir;
     // The staff app's offline service worker belongs on the hub only. Without it the
     // dashboard always shows the live cloud copy.
-    app.get(["/sw.js", "/registerSW.js", /^\/workbox-.*\.js$/, "/index.html"], (_req, res) =>
+    app.get(["/sw.js", /^\/workbox-.*\.js$/, "/index.html"], (_req, res) =>
       res.status(404).end(),
     );
+    // Built pages all reference the registration script; on the cloud it does nothing.
+    app.get("/registerSW.js", (_req, res) =>
+      res.type("text/javascript").send("// No offline worker on the cloud.\n"),
+    );
+    // The cloud's home page introduces the product; hotels and owners go on from there.
+    app.get("/", (_req, res) => res.sendFile("landing.html", { root: dir }));
     if (options.reports) {
-      app.get("/", (_req, res) => res.redirect(302, "/dashboard"));
       app.get("/dashboard", (_req, res) =>
         res.sendFile("dashboard.html", { root: dir }),
       );
