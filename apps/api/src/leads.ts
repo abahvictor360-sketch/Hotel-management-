@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { route } from "./http.js";
 import type { Conn } from "./sync-apply.js";
+import type { Lead } from "./lead-alerts.js";
 type Connect = () => Promise<{ conn: Conn; release: () => void }>;
 // Contact form on the public website. Runs as booking_agent, which may only insert a new
 // enquiry; the provider console reads and follows them up.
@@ -37,7 +38,16 @@ export const leadSchema = z
     openedMs: z.number().int().min(0).optional(),
   })
   .strict();
-export function leadsRouter(connect: Connect, now = () => Date.now()) {
+export function leadsRouter(
+  connect: Connect,
+  options: {
+    // Told about each stored enquiry, after it is saved. Not awaited: the visitor's
+    // answer never waits for alerts.
+    onLead?: (lead: Lead) => void;
+    now?: () => number;
+  } = {},
+) {
+  const now = options.now ?? (() => Date.now());
   const r = Router();
   r.use(
     rateLimit({
@@ -88,6 +98,17 @@ export function leadsRouter(connect: Connect, now = () => Date.now()) {
           plan: v.plan ?? null,
         }),
       );
+      options.onLead?.({
+        id,
+        name: v.name,
+        email: v.email,
+        phone: v.phone,
+        hotelName: v.hotelName,
+        city: v.city,
+        rooms: v.rooms,
+        plan: v.plan ?? null,
+        message: v.message,
+      });
       res.status(201).json({ received: true });
     }),
   );

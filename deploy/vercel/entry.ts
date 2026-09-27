@@ -53,6 +53,7 @@ async function cloud() {
   const { deliverPending, webhookDeliver, logDeliver } = await import(
     "../../apps/api/src/notifier.js"
   );
+  const { leadAlerter } = await import("../../apps/api/src/lead-alerts.js");
   const env = process.env;
   const sync = pool(env.CLOUD_SYNC_DATABASE_URL!);
   const reports = env.CLOUD_REPORT_DATABASE_URL
@@ -74,6 +75,7 @@ async function cloud() {
     if (booking && deliver)
       background("notify", () => deliverPending(poolConnect(booking), deliver));
   };
+  const alertLead = leadAlerter(env);
   const inner = createCloudApp(poolConnect(sync), {
     reports: reports ? poolConnect(reports) : undefined,
     dashboardDir: "apps/web/dist",
@@ -84,6 +86,8 @@ async function cloud() {
           sealingKey: pem(env.CLOUD_SEALING_PRIVATE_KEY) ?? null,
         }
       : undefined,
+    // The response returns at once; waitUntil keeps the function alive for the alert.
+    onLead: (lead) => background("lead_alert", () => alertLead(lead)),
   });
   behindVercel(inner);
   const app = behindVercel(express());

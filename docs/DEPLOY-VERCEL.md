@@ -55,6 +55,20 @@ cloud: `HOTEL_HUB_SERVICE=cloud`, `NODE_ENV`, `CLOUD_SYNC_DATABASE_URL`,
 `CLOUD_SEALING_PRIVATE_KEY`, `CRON_SECRET`, and either `NOTIFY_WEBHOOK_URL` with
 `NOTIFY_WEBHOOK_SECRET` or `NOTIFY_LOG=true`.
 
+WhatsApp alerts for website enquiries (cloud, optional): `LEAD_WHATSAPP_TO` (your number,
+e.g. `+2348031234567`), `PROVIDER_CONSOLE_URL` (linked in the alert), and one sender:
+
+- CallMeBot, free, for alerts to your own number: save +34 644 71 81 99 in your phone's
+  contacts, send it the WhatsApp message `I allow callmebot to send me messages`, and set the
+  API key it replies with as `CALLMEBOT_API_KEY`.
+- WhatsApp Cloud API (Meta), for a business sender: `WHATSAPP_CLOUD_TOKEN`,
+  `WHATSAPP_PHONE_NUMBER_ID`, and `WHATSAPP_TEMPLATE`, an approved template whose body has four
+  variables: hotel, rooms and city, contact, message (optional `WHATSAPP_TEMPLATE_LANG`,
+  default `en`).
+
+Alerts go out in the background after the enquiry is saved; a failure is logged as
+`lead_alert_failed` and never affects the visitor.
+
 provider: `HOTEL_HUB_SERVICE=provider`, `NODE_ENV`, `PROVIDER_DATABASE_URL`,
 `PROVIDER_JWT_SECRET`, `PROVIDER_PASSWORD_HASH`, `LICENSE_PRIVATE_KEY`, `PROVIDER_ORIGIN`.
 

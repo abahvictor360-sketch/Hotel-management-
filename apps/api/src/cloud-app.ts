@@ -15,6 +15,7 @@ import {
 } from "../../../packages/core/src/sync-contract.js";
 import { applyEvent, tenantTx, type Conn } from "./sync-apply.js";
 import { leadsRouter } from "./leads.js";
+import type { Lead } from "./lead-alerts.js";
 import { remoteRouter } from "./remote-api.js";
 import {
   bookingRouter,
@@ -88,6 +89,7 @@ export function createCloudApp(
     dashboardDir?: string;
     // booking_agent connection and settings. Without it no public booking site is served.
     booking?: BookingDeps;
+    onLead?: (lead: Lead) => void;
   } = {},
 ) {
   const app = express();
@@ -232,7 +234,10 @@ export function createCloudApp(
   );
   if (options.reports) app.use("/api/remote", remoteRouter(options.reports));
   if (options.booking) {
-    app.use("/api/public/contact", leadsRouter(options.booking.connect));
+    app.use(
+      "/api/public/contact",
+      leadsRouter(options.booking.connect, { onLead: options.onLead }),
+    );
     app.use("/api/public", bookingRouter(options.booking));
   }
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found." }));

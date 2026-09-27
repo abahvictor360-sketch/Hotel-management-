@@ -2,6 +2,7 @@ import "dotenv/config";
 import pg from "pg";
 import { z } from "zod";
 import { createCloudApp } from "./cloud-app.js";
+import { leadAlerter } from "./lead-alerts.js";
 import { readFileSync } from "node:fs";
 import { poolConnect, assertSyncRole } from "./sync-apply.js";
 import { startNotifier, webhookDeliver, logDeliver } from "./notifier.js";
@@ -47,6 +48,8 @@ const deliver = config.NOTIFY_WEBHOOK_URL
 // Without a transport, messages wait as pending and send once one is configured.
 const stopNotifier =
   bookingPool && deliver ? startNotifier(poolConnect(bookingPool), deliver) : () => {};
+// WhatsApp alert to the product owner for each website enquiry, when configured.
+const alertLead = leadAlerter(process.env);
 const server = createCloudApp(poolConnect(pool), {
   reports: reportPool ? poolConnect(reportPool) : undefined,
   booking: bookingPool
@@ -57,6 +60,7 @@ const server = createCloudApp(poolConnect(pool), {
       }
     : undefined,
   dashboardDir: "apps/web/dist",
+  onLead: (lead) => void alertLead(lead),
 }).listen(
   config.CLOUD_PORT,
   "0.0.0.0",
